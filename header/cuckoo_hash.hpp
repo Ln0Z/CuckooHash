@@ -8,12 +8,13 @@ class CuckooHash{
         std::vector<int> h1;
         std::vector<int> h2;
         size_t size_;
+        size_t capacity;
         float max_load;
 
     public: 
-        CuckooHash(){};
+        CuckooHash() : size_(0), capacity(0), max_load(1.0) {};
 
-        CuckooHash(std::initializer_list<int> vals){
+        CuckooHash(const std::initializer_list<int>& vals) : size_(0), capacity(0), max_load(1.0){
             for (int x : vals){
                 insert(x);
             }
@@ -21,11 +22,15 @@ class CuckooHash{
 
         void insert(int key);
 
-        bool contains();
+        bool contains(int key);
         
-        void erase();
+        bool erase(int key);
 
         void rehash();
+
+        void clear();
+
+        bool empty();
 
         size_t size() const;
 
