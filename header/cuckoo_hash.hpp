@@ -22,7 +22,14 @@ class CuckooHash{
         void insert(int key);
 
         bool contains();
+        
+        void erase();
 
+        void rehash();
+
+        size_t size() const;
+
+        float load_factor() const;
 };
 
 #endif
