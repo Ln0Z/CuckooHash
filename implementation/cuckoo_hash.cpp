@@ -22,11 +22,11 @@ void CuckooHash::clear(){
 }
 
 bool CuckooHash::empty(){
-
+    return size_ == 0;
 }
 
 size_t CuckooHash::size() const {
-
+    return size_;
 }
 
 float CuckooHash::load_factor() const{
