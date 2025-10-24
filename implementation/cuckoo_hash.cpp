@@ -1,7 +1,37 @@
 #include "../header/cuckoo_hash.hpp"
 
 void CuckooHash::insert(int key){
+    if (contains(key)) return;
 
+    size_t hash = hash_1(key);
+    ++size_;
+    bool is_hash_1 = true;
+    int cuckoo;
+    
+    while(true){
+
+        if (is_hash_1){
+            if (h1[hash] == 0){
+                h1[hash] = key;
+                break;
+            } else{
+                cuckoo = h1[hash];
+                h1[hash] = key;
+                hash = hash_1(cuckoo);
+                is_hash_1 = false;
+            }
+        } else{
+            if (h2[hash] == 0){
+                h2[hash] = key;
+                break;
+            } else{
+                cuckoo = h2[hash];
+                h2[hash] = key;
+                hash = hash_2(cuckoo);
+                is_hash_1 = true;
+            }
+        }
+    }
 }
 
 bool CuckooHash::contains(int key){
