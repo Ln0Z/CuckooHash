@@ -1,11 +1,12 @@
 #ifndef CUCKOO_HASH
 #define CUCKOO_HASH
 #include <vector>
+#include <optional>
 
 class CuckooHash{
 
     public: 
-        CuckooHash() : size_(0), capacity(1), max_load(1.0) {};
+        CuckooHash() : size_(0), capacity(1), max_load(1.0), h1(capacity), h2(capacity) {}
 
         CuckooHash(const std::initializer_list<int>& vals) : size_(0), capacity(1), max_load(1.0){
             for (int x : vals){
@@ -35,10 +36,8 @@ class CuckooHash{
         size_t hash_1(int key);
         size_t hash_2(int key);
         
-        std::vector<int> h1;
-        std::vector<int> h2;
-        size_t size_;
-        size_t capacity;
+        std::vector<std::optional<int>> h1, h2;
+        size_t size_, capacity, max_steps;
         float max_load;
 };
 

@@ -6,37 +6,46 @@ void CuckooHash::insert(int key){
     size_t hash = hash_1(key);
     ++size_;
     bool is_hash_1 = true;
-    int cuckoo;
+    int cuckoo, counter;
     
-    while(true){
-
+    while(counter < max_steps){
         if (is_hash_1){
-            if (h1[hash] == 0){
+            if (h1[hash].has_value()){
                 h1[hash] = key;
                 break;
             } else{
-                cuckoo = h1[hash];
+                cuckoo = h1[hash].value();
                 h1[hash] = key;
                 hash = hash_1(cuckoo);
                 is_hash_1 = false;
             }
         } else{
-            if (h2[hash] == 0){
+            if (h2[hash].has_value()){
                 h2[hash] = key;
                 break;
             } else{
-                cuckoo = h2[hash];
+                cuckoo = h2[hash].value();
                 h2[hash] = key;
                 hash = hash_2(cuckoo);
                 is_hash_1 = true;
             }
         }
+        ++counter;
     }
 }
 
 bool CuckooHash::contains(int key){
+    size_t key_1 = hash_1(key);
+    size_t key_2 = hash_2(key);
 
+    if (h1[key_1] && *h1[key_1] == key){
+        return true;
+    } else if (h2[key_2] && *h2[key_2] == key){
+        return true;
+    }
+    return false;
 }
+
 
 bool CuckooHash::erase(int key){
 
@@ -64,8 +73,8 @@ float CuckooHash::load_factor() const{
 }
 
 size_t CuckooHash::hash_1(int key){
-
+    return (key * 7) % capacity;
 }
 size_t CuckooHash::hash_2(int key){
-
+    return (5 * key + 1) % capacity;
 }
