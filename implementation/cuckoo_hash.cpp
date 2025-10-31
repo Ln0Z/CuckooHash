@@ -6,11 +6,12 @@ void CuckooHash::insert(int key){
     size_t hash = hash_1(key);
     ++size_;
     bool is_hash_1 = true;
-    int cuckoo, counter;
+    int cuckoo;
+    int counter{0};
     
     while(counter < max_steps){
         if (is_hash_1){
-            if (h1[hash].has_value()){
+            if (!(h1[hash].has_value())){
                 h1[hash] = key;
                 break;
             } else{
@@ -48,7 +49,23 @@ bool CuckooHash::contains(int key){
 
 
 bool CuckooHash::erase(int key){
+    //Hash both key for both vectors.
+    size_t key_1 = hash_1(key);
+    size_t key_2 = hash_2(key);
 
+    //Check if value is in vec h1 and resets to default std::optional<int>
+    if (h1[key_1] && *h1[key_1] == key){
+        h1[key_1].reset();
+        -size_;
+        return true;
+    } 
+    // Check if value is in vec h2 and resets to default std::optional<int>
+    else if (h2[key_2] && *h2[key_2] == key){
+        h2[key_2].reset();
+        -size_;
+        return true;
+    }
+    return false;
 }
 
 //Helpter methods
