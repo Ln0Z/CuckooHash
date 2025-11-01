@@ -17,7 +17,7 @@ class CuckooHash{
         //Main functionality
         void insert(int key);
 
-        bool contains(int key);
+        int contains(int key);
         
         bool erase(int key);
 

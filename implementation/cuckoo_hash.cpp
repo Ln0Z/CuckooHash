@@ -3,12 +3,16 @@
 void CuckooHash::insert(int key){
     if (contains(key)) return;
 
+    //Initialise variables
     size_t hash = hash_1(key);
     ++size_;
     bool is_hash_1 = true;
     int cuckoo;
     int counter{0};
     
+    //Run a loop where the check will alternatively check each vector to see if the hashed key value has a stored value in the bucket
+    //If a value is contained in the bucket, evict the value and then rehash the value into the other bucket
+    //Loop will continue to evict and rehash until a vacant bucket is found or the predefined max steps is reached and will then trigger a rehash.
     while(counter < max_steps){
         if (is_hash_1){
             if (!(h1[hash].has_value())){
@@ -21,7 +25,7 @@ void CuckooHash::insert(int key){
                 is_hash_1 = false;
             }
         } else{
-            if (h2[hash].has_value()){
+            if (!(h2[hash].has_value())){
                 h2[hash] = key;
                 break;
             } else{
@@ -33,18 +37,24 @@ void CuckooHash::insert(int key){
         }
         ++counter;
     }
+    if (load_factor() > max_load || counter == max_steps){
+        rehash();
+    }
 }
 
-bool CuckooHash::contains(int key){
+//Contains returns the int of which bucket the value belongs in for check in erase method and it returns -1 if it does not belong to a bucket.
+int CuckooHash::contains(int key){
+    //Hash both key for both vectors.
     size_t key_1 = hash_1(key);
     size_t key_2 = hash_2(key);
-
+    
+    //Check if value is in vec h1 and resets to default std::optional<int>
     if (h1[key_1] && *h1[key_1] == key){
-        return true;
+        return 0;
     } else if (h2[key_2] && *h2[key_2] == key){
-        return true;
+        return 1;
     }
-    return false;
+    return -1;
 }
 
 
@@ -52,17 +62,18 @@ bool CuckooHash::erase(int key){
     //Hash both key for both vectors.
     size_t key_1 = hash_1(key);
     size_t key_2 = hash_2(key);
+    int bucket = contains(key);
 
     //Check if value is in vec h1 and resets to default std::optional<int>
-    if (h1[key_1] && *h1[key_1] == key){
+    if (bucket == 1){
         h1[key_1].reset();
-        -size_;
+        --size_;
         return true;
     } 
     // Check if value is in vec h2 and resets to default std::optional<int>
-    else if (h2[key_2] && *h2[key_2] == key){
+    else if (bucket == 2){
         h2[key_2].reset();
-        -size_;
+        --size_;
         return true;
     }
     return false;
@@ -70,7 +81,7 @@ bool CuckooHash::erase(int key){
 
 //Helpter methods
 void CuckooHash::rehash(){
-
+    
 }
 
 void CuckooHash::clear(){
@@ -86,9 +97,10 @@ size_t CuckooHash::size() const {
 }
 
 float CuckooHash::load_factor() const{
-
+    return size_ / capacity;
 }
 
+//Basic hash functions to be overloaded in Deterministic and Randomised child classes for approach implementation.
 size_t CuckooHash::hash_1(int key){
     return (key * 7) % capacity;
 }
