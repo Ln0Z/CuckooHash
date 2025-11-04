@@ -81,11 +81,32 @@ bool CuckooHash::erase(int key){
 
 //Helpter methods
 void CuckooHash::rehash(){
-    
+    //Increase size to the next power of 2
+    int new_capacity = capacity * 2;
+  
+    //Create values vector to store all the values in the cuckoo hash table.
+    std::vector<int> values;
+    values.reserve((capacity));
+    for(size_t i = 0; i < h1.size(); ++i){
+        if (h1[i]) values.push_back(h1[i].value());
+        if (h2[i]) values.push_back(h2[i].value());
+    }
+
+    capacity = new_capacity;
+
+    h1.assign(capacity, std::nullopt);
+    h2.assign(capacity, std::nullopt);
+
+    //Re-insert values into the newly sized hash table as the new size will change the hash location.
+    for (int x : values){
+        insert(x);
+    }
 }
 
 void CuckooHash::clear(){
-
+    h1.clear();
+    h2.clear();
+    size_ = 0;
 }
 
 bool CuckooHash::empty(){
