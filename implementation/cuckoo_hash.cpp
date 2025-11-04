@@ -1,7 +1,8 @@
 #include "../header/cuckoo_hash.hpp"
+#include <iostream>
 
 void CuckooHash::insert(int key){
-    if (contains(key)) return;
+    if (contains(key) == 1 || contains(key) == 2) return;
 
     //Initialise variables
     size_t hash = hash_1(key);
@@ -21,23 +22,24 @@ void CuckooHash::insert(int key){
             } else{
                 cuckoo = h1[hash].value();
                 h1[hash] = key;
-                hash = hash_1(cuckoo);
+                hash = hash_2(cuckoo);
                 is_hash_1 = false;
             }
         } else{
             if (!(h2[hash].has_value())){
-                h2[hash] = key;
+                h2[hash] = cuckoo;
                 break;
             } else{
-                cuckoo = h2[hash].value();
-                h2[hash] = key;
-                hash = hash_2(cuckoo);
+                key = h2[hash].value();
+                h2[hash] = cuckoo;
+                hash = hash_1(key);
                 is_hash_1 = true;
             }
         }
         ++counter;
     }
     if (load_factor() > max_load || counter == max_steps){
+        std::cout << "Triggering Rehash";
         rehash();
     }
 }
@@ -50,9 +52,9 @@ int CuckooHash::contains(int key){
     
     //Check if value is in vec h1 and resets to default std::optional<int>
     if (h1[key_1] && *h1[key_1] == key){
-        return 0;
-    } else if (h2[key_2] && *h2[key_2] == key){
         return 1;
+    } else if (h2[key_2] && *h2[key_2] == key){
+        return 2;
     }
     return -1;
 }
@@ -121,10 +123,18 @@ float CuckooHash::load_factor() const{
     return size_ / capacity;
 }
 
+std::vector<std::optional<int>> CuckooHash::return_h1(){
+    return h1;
+}
+
+std::vector<std::optional<int>> CuckooHash::return_h2(){
+    return h2;
+}
+
 //Basic hash functions to be overloaded in Deterministic and Randomised child classes for approach implementation.
 size_t CuckooHash::hash_1(int key){
     return (key * 7) % capacity;
 }
 size_t CuckooHash::hash_2(int key){
-    return (5 * key + 1) % capacity;
+    return (5 * (key + 1)) % capacity;
 }
