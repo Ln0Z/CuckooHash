@@ -1,5 +1,6 @@
 #include "../header/cuckoo_hash.hpp"
 #include <iostream>
+#include "cuckoo_hash.hpp"
 
 void CuckooHash::insert(int key){
     if (contains(key) == 1 || contains(key) == 2) return;
@@ -10,6 +11,7 @@ void CuckooHash::insert(int key){
     bool is_hash_1 = true;
     int cuckoo;
     int counter{0};
+    float load_factor_ = load_factor();
     
     //Run a loop where the check will alternatively check each vector to see if the hashed key value has a stored value in the bucket
     //If a value is contained in the bucket, evict the value and then rehash the value into the other bucket
@@ -39,7 +41,7 @@ void CuckooHash::insert(int key){
         ++counter;
     }
     if (load_factor() > max_load || counter == max_steps){
-        std::cout << "Triggering Rehash";
+        std::cout << "Triggering Rehash" << "\n";
         rehash();
     }
 }
@@ -84,20 +86,21 @@ bool CuckooHash::erase(int key){
 //Helpter methods
 void CuckooHash::rehash(){
     //Increase size to the next power of 2
-    int new_capacity = capacity * 2;
+    int new_capacity = capacity_ * 2;
   
     //Create values vector to store all the values in the cuckoo hash table.
     std::vector<int> values;
-    values.reserve((capacity));
+    values.reserve((capacity_));
     for(size_t i = 0; i < h1.size(); ++i){
         if (h1[i]) values.push_back(h1[i].value());
         if (h2[i]) values.push_back(h2[i].value());
     }
 
-    capacity = new_capacity;
+    capacity_ = new_capacity;
+    size_ = 0;
 
-    h1.assign(capacity, std::nullopt);
-    h2.assign(capacity, std::nullopt);
+    h1.assign(capacity_, std::nullopt);
+    h2.assign(capacity_, std::nullopt);
 
     //Re-insert values into the newly sized hash table as the new size will change the hash location.
     for (int x : values){
@@ -119,8 +122,12 @@ size_t CuckooHash::size() const {
     return size_;
 }
 
+size_t CuckooHash::capacity() const {
+    return capacity_;
+}
+
 float CuckooHash::load_factor() const{
-    return size_ / capacity;
+    return (float)size_ / (2 * capacity_);
 }
 
 std::vector<std::optional<int>> CuckooHash::return_h1(){
@@ -133,8 +140,8 @@ std::vector<std::optional<int>> CuckooHash::return_h2(){
 
 //Basic hash functions to be overloaded in Deterministic and Randomised child classes for approach implementation.
 size_t CuckooHash::hash_1(int key){
-    return (key * 7) % capacity;
+    return (key * 7) % capacity_;
 }
 size_t CuckooHash::hash_2(int key){
-    return (5 * (key + 1)) % capacity;
+    return (5 * (key + 1)) % capacity_;
 }

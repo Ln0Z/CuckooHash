@@ -6,9 +6,9 @@
 class CuckooHash{
 
     public: 
-        CuckooHash() : size_(0), capacity(8), max_load(1.0), max_steps(10), h1(capacity), h2(capacity) {}
+        CuckooHash() : size_(0), capacity_(8), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_) {}
 
-        CuckooHash(const std::initializer_list<int>& vals) : size_(0), capacity(8), max_load(1.0), max_steps(10), h1(capacity), h2(capacity){
+        CuckooHash(const std::initializer_list<int>& vals) : size_(0), capacity_(8), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_){
             for (int x : vals){
                 insert(x);
             }
@@ -19,24 +19,27 @@ class CuckooHash{
         int contains(int key);
         bool erase(int key);
 
+
+        //Getter methods for tests
         std::vector<std::optional<int>> return_h1();
         std::vector<std::optional<int>> return_h2();
+        size_t size() const;
+        size_t capacity() const;
+
     private: 
-        //Helpter methods
+        //Helper methods
         void rehash();
 
         void clear();
 
         bool empty();
 
-        size_t size() const;
-
         float load_factor() const;
         
         size_t hash_1(int key);
         size_t hash_2(int key);
         
-        size_t size_, capacity, max_steps;
+        size_t size_, capacity_, max_steps;
         float max_load;
         std::vector<std::optional<int>> h1, h2;
 };
