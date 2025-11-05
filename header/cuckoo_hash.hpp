@@ -14,8 +14,10 @@ class CuckooHash{
             }
         }
 
+        ~CuckooHash() = default;
+
         //Main functionality
-        void insert(int key);
+        virtual void insert(int key);
         int contains(int key);
         bool erase(int key);
 
@@ -28,7 +30,7 @@ class CuckooHash{
 
     private: 
         //Helper methods
-        void rehash();
+        virtual void rehash();
 
         void clear();
 
@@ -36,8 +38,8 @@ class CuckooHash{
 
         float load_factor() const;
         
-        size_t hash_1(int key);
-        size_t hash_2(int key);
+        virtual size_t hash_1(int key);
+        virtual size_t hash_2(int key);
         
         size_t size_, capacity_, max_steps;
         float max_load;
