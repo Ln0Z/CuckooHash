@@ -28,7 +28,7 @@ class CuckooHash{
         size_t size() const;
         size_t capacity() const;
 
-    private: 
+    protected: 
         //Helper methods
         virtual void rehash();
 
