@@ -100,6 +100,15 @@ TEST(basic_remove_test, insert_10_elements) {
 }
 
 // Tests for cuckoo hash table,
+
+TEST(basic_func_test, is_empty){
+  CuckooHash table;
+
+  ASSERT_TRUE(table.empty());
+  ASSERT_EQ(table.size(), 0);
+  ASSERT_EQ(table.capacity(), 13);
+}
+
 // Insert 1 element
 
 TEST(insert_test, insert_single_element){
@@ -118,12 +127,17 @@ TEST(insert_test, insert_single_element){
 
 // Insert negative elements
 TEST(insert_test, insert_negative_element){
-  CuckooHash table{-12};
+  CuckooHash table;
 
-  assert(table.contains(-12));
+  table.insert(-12);
+  ASSERT_TRUE(table.contains(-12));
   ASSERT_EQ(table.size(), 1);
-  ASSERT_EQ(table.h1_bucket()[2].value(), 4);
+  ASSERT_FALSE(table.empty());
+  size_t idx1 = table.get_hash_1(-12);
+  ASSERT_EQ(table.h1_bucket()[idx1].value(), -12);
 }
+
+// Insert 2 Elements where they clash
 
 
 int main(int argc, char *argv[]) {
