@@ -187,7 +187,7 @@ TEST(insert_test, insert_2_clashing_elements){
   size_t idx_h2_19 = table.get_hash_2(19);
   size_t idx_h2_26 = table.get_hash_2(26);
 
-  //Hashed values should be equal using first hash method
+  //Hashed values should be equal using first hash method but different with the second hash method
   ASSERT_EQ(idx_h1_19, idx_h1_26);
   ASSERT_NE(idx_h2_19, idx_h2_26);
 
@@ -196,17 +196,20 @@ TEST(insert_test, insert_2_clashing_elements){
 }
 
 //Duplicate elements cannot be present in the structure.
-// TEST(insert_test, no_duplicate_elements){
-//   CuckooHash table;
+TEST(insert_test, no_duplicate_elements){
+  CuckooHash table;
 
-//   table.insert(12);
+  table.insert(12);
 
-//   ASSERT_TRUE(table.contains(12));
-//   ASSERT_EQ(table.size(), 1);
-//   ASSERT_
-
+  ASSERT_EQ(table.contains(12), 1);
+  ASSERT_EQ(table.size(), 1);
+  table.insert(12);
   
-// }
+  ASSERT_EQ(table.contains(12), 1);
+  ASSERT_EQ(table.size(), 1);
+}
+
+
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
