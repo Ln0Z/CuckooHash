@@ -138,7 +138,33 @@ TEST(insert_test, insert_negative_element){
 }
 
 // Insert 2 Elements where they clash
+TEST(insert_test, insert_2_clashing_elements){
+  CuckooHash table;
 
+  ASSERT_TRUE(table.empty());
+
+  table.insert(1);
+  table.insert(14);
+  ASSERT_EQ(table.size(), 2);
+  ASSERT_FALSE(table.empty());
+
+  ASSERT_TRUE(table.contains(1));
+  ASSERT_TRUE(table.contains(13));
+  
+  size_t idx_h1_1 = table.get_hash_1(1);
+  size_t idx_h1_13 = table.get_hash_1(13);
+
+  size_t idx_h2_1 = table.get_hash_2(1);
+  size_t idx_h2_13 = table.get_hash_2(13);
+
+  //Hashed values should be equal using first hash method but not in the second
+  ASSERT_EQ(idx_h1_1, idx_h1_13);
+  ASSERT_NE(idx_h2_1, idx_h2_13);
+
+  ASSERT_EQ(table.h1_bucket()[idx_h1_1], 1);
+  ASSERT_EQ(table.h2_bucket()[idx_h2_13], 13);
+  
+}
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
