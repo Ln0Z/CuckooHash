@@ -6,7 +6,7 @@
 
 class CuckooHash{
     public: 
-        CuckooHash() : size_index(0), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(log2(sizes[size_index])), h1(capacity_), h2(capacity_) {}
+        CuckooHash() : size_index(0), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(static_cast<size_t>(std::ceil(log2(sizes[size_index])))), h1(capacity_), h2(capacity_) {}
 
         CuckooHash(const std::initializer_list<int>& vals) : size_(0), capacity_(8), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_){
             for (int x : vals){

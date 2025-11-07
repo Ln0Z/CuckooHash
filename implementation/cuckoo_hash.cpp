@@ -8,7 +8,7 @@ void CuckooHash::insert(int key){
     size_t hash = hash_1(key);
     ++size_;
     bool is_hash_1 = true;
-    int cuckoo{0}, counter{0}, og_key = key;
+    int cuckoo{0}, counter{0}, last_key = key;
     float load_factor_ = load_factor();
     
     //Run a loop where the check will alternatively check each vector to see if the hashed key value has a stored value in the bucket
@@ -20,7 +20,7 @@ void CuckooHash::insert(int key){
                 h1[hash] = key;
                 break;
             } else{
-                cuckoo = h1[hash].value();
+                cuckoo = last_key = h1[hash].value();
                 h1[hash] = key;
                 hash = hash_2(cuckoo);
                 is_hash_1 = false;
@@ -30,7 +30,7 @@ void CuckooHash::insert(int key){
                 h2[hash] = cuckoo;
                 break;
             } else{
-                key = h2[hash].value();
+                key= last_key = h2[hash].value();
                 h2[hash] = cuckoo;
                 hash = hash_1(key);
                 is_hash_1 = true;
@@ -43,9 +43,9 @@ void CuckooHash::insert(int key){
         ++size_index;
         max_steps = log2(sizes[size_index]);
         rehash(sizes[size_index]);
-        //If max steps case is triggered, the original key does not get inserted when it toggles a rehash
+        //If max steps case is triggered, the last key that was evicted does not get inserted when it toggles a rehash
         //So attempt to reinsert the key again after rehash
-        insert(og_key);
+        insert(last_key);
     }
 }
 
