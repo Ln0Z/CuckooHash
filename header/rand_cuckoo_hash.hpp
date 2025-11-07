@@ -1,6 +1,6 @@
 #ifndef RAND_CUCKOO_HASH
 #define RAND_CUCKOO_HASH
-#include "header/cuckoo_hash.hpp"
+#include "cuckoo_hash.hpp"
 
 class RandCuckooHash : public CuckooHash {
     public:

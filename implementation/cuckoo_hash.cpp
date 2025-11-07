@@ -1,4 +1,3 @@
-#include "../header/cuckoo_hash.hpp"
 #include <iostream>
 #include "cuckoo_hash.hpp"
 
@@ -84,7 +83,7 @@ bool CuckooHash::erase(int key){
     return false;
 }
 
-//Helpter methods
+//Helper methods
 void CuckooHash::rehash(size_t new_size){
 
     //Create values vector to store all the values in the cuckoo hash table.
