@@ -40,7 +40,7 @@ void CuckooHash::insert(int key){
         ++counter;
     }
     if (load_factor() > max_load || counter == max_steps){
-        std::cout << "Triggering Rehash" << "\n";
+        std::cout << "Triggering Rehash" << std::endl;
         ++size_index;
         rehash(sizes[size_index]);
     }
