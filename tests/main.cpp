@@ -90,12 +90,13 @@ TEST(basic_remove_test, insert_10_elements) {
   for (size_t i = 0; i < values.size(); ++i) {
     table.insert(values[i]);
   }
+  
+  std::vector<std::optional<int>> h1_results{std::nullopt, 39, 1, 23, 12, 34, std::nullopt, 11, std::nullopt, 2, 
+                                             std::nullopt, 53, std::nullopt};
 
-  std::vector<std::optional<int>> h1_results{39, 2, std::nullopt, 45, 34, 23, 12, 53, 3, std::nullopt, std::nullopt,
-                                             std::nullopt, 11};
   std::vector<std::optional<int>> h2_results{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1,
-                                             std::nullopt, std::nullopt};
+                                             std::nullopt, std::nullopt, 3, std::nullopt, std::nullopt, 
+                                             std::nullopt, 45, std::nullopt};
 
   ASSERT_EQ(table.h1_bucket().size(), 13);
   ASSERT_EQ(table.h2_bucket().size(), 13);
@@ -145,10 +146,10 @@ TEST(basic_func_test, is_empty){
 TEST(insert_test, insert_single_element){
   CuckooHash table;
   
-  ASSERT_FALSE(table.contains(4));
+  ASSERT_EQ(table.contains(4), -1);
 
   table.insert(4);
-  ASSERT_TRUE(table.contains(4));
+  ASSERT_EQ(table.contains(4), 1);
   ASSERT_EQ(table.size(), 1);
   ASSERT_FALSE(table.empty());
 
@@ -161,7 +162,7 @@ TEST(insert_test, insert_negative_element){
   CuckooHash table;
 
   table.insert(-12);
-  ASSERT_TRUE(table.contains(-12));
+  ASSERT_EQ(table.contains(-12), 1);
   ASSERT_EQ(table.size(), 1);
   ASSERT_FALSE(table.empty());
   size_t idx1 = table.get_hash_1(-12);
