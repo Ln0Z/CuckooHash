@@ -2,6 +2,7 @@
 #include <random>
 #include "cuckoo_hash.hpp"
 #include <limits.h>
+#include <iostream>
 
 namespace{
     std::vector<int> random_set(int total_numbers){
@@ -50,7 +51,13 @@ TEST(basic_rehash_test, insert_cause_rehash) {
 
   for (size_t i = 0; i < values.size(); ++i) {
     table.insert(values[i]);
+    if(i == 12){
+      //Next insert will trigger rehash
+      ASSERT_EQ(table.load_factor(), 0.5f);
+    }
   }
+
+  ASSERT_EQ(table.capacity(), 29);
 
   std::vector<std::optional<int>> h1_results(29, std::nullopt);
   std::vector<std::optional<int>> h2_results(29, std::nullopt);
@@ -209,10 +216,27 @@ TEST(insert_test, no_duplicate_elements){
   ASSERT_EQ(table.size(), 1);
 }
 
+TEST(insert_test, exceeding_max_steps_rehashes){
+  CuckooHash table;
+
+  std::vector<int> values{7, 14, 34, 41, 54, 61, 81, 88};
+
+  for(size_t i = 0; i < values.size(); ++i){
+    table.insert(values[i]);
+  }
+
+  ASSERT_EQ(table.capacity(), 29);
+  ASSERT_EQ(table.size(), 8);
+
+  for(int v : values){
+    ASSERT_TRUE(table.contains(v) == 1 || table.contains(v) == 2);
+  }
+}
+
 
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "basic_rehash_test.*";
+  ::testing::GTEST_FLAG(filter) = "insert_test.exceeding_max_steps_rehashes";
   return RUN_ALL_TESTS();
 }
