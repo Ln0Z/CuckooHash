@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <random>
 #include "cuckoo_hash.hpp"
+#include <limits.h>;
 
 namespace{
     std::vector<int> random_set(int total_numbers){
@@ -108,6 +109,20 @@ TEST(basic_func_test, is_empty){
   ASSERT_EQ(table.size(), 0);
   ASSERT_EQ(table.capacity(), 13);
 }
+
+// Confirm hashing stays within bucket boundaries i.e < capacity
+  TEST(basic_func_test, hash_below_capacity){
+    CuckooHash table;
+
+    int large_number = INT_MAX / 2;
+
+    size_t idx_h1 = table.get_hash_1(large_number);
+    size_t idx_h2 = table.get_hash_2(large_number);
+
+    ASSERT_TRUE(idx_h1 < table.capacity());
+    ASSERT_TRUE(idx_h2 < table.capacity());
+    ASSERT_NE(idx_h1, idx_h2);
+  }
 
 // Insert 1 element
 
