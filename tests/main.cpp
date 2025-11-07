@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <random>
 #include "cuckoo_hash.hpp"
-#include <limits.h>;
+#include <limits.h>
 
 namespace{
     std::vector<int> random_set(int total_numbers){
@@ -27,11 +27,13 @@ TEST(basic_insert_test, insert_10_elements) {
     table.insert(values[i]);
   }
 
-  std::vector<std::optional<int>> h1_results{39, 2, std::nullopt, 45, 34, 23, 12, 53, 3, std::nullopt, std::nullopt,
-                                             std::nullopt, 11};
+    std::vector<std::optional<int>> h1_results{std::nullopt, 39, 1, 23, 12, 34, std::nullopt, 11, std::nullopt, 2, 
+                                             std::nullopt, 53, std::nullopt};
+
   std::vector<std::optional<int>> h2_results{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1,
-                                             std::nullopt, std::nullopt};
+                                             std::nullopt, std::nullopt, 3, std::nullopt, std::nullopt, 
+                                             std::nullopt, 45, std::nullopt};
+
 
   ASSERT_EQ(table.h1_bucket().size(), 13);
   ASSERT_EQ(table.h2_bucket().size(), 13);
@@ -43,22 +45,36 @@ TEST(basic_insert_test, insert_10_elements) {
 }
 
 TEST(basic_rehash_test, insert_cause_rehash) {
-  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
+  std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
   CuckooHash table;
 
   for (size_t i = 0; i < values.size(); ++i) {
     table.insert(values[i]);
   }
-  std::vector<std::optional<int>> h1_results{39, 2, std::nullopt, 45, 34, 23, 12, 53, 3, std::nullopt, std::nullopt,
-                                             std::nullopt, 11};
-  std::vector<std::optional<int>> h2_results{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 1,
-                                             std::nullopt, std::nullopt};
+
+  std::vector<std::optional<int>> h1_results(29, std::nullopt);
+  std::vector<std::optional<int>> h2_results(29, std::nullopt);
+
+  h1_results[2]  = 53;
+  h1_results[4]  = 45;
+  h1_results[5]  = 6;
+  h1_results[6]  = 2;
+  h1_results[11] = 11;
+  h1_results[13] = 3;
+  h1_results[19] = 8;
+  h1_results[23] = 23;
+  h1_results[27] = 5;
+  h1_results[28] = 34;
+
+  h2_results[7]  = 12;
+  h2_results[5]  = 38;
+  h2_results[10] = 1;
+  h2_results[14] = 43;
 
 
-  ASSERT_EQ(table.h1_bucket().size(), 13);
-  ASSERT_EQ(table.h2_bucket().size(), 13);
-  ASSERT_EQ(table.capacity(), 13);
+  ASSERT_EQ(table.h1_bucket().size(), 29);
+  ASSERT_EQ(table.h2_bucket().size(), 29);
+  ASSERT_EQ(table.capacity(), 29);
 
 
   for (size_t i = 0; i < h1_results.size(); ++i) {
@@ -156,33 +172,43 @@ TEST(insert_test, insert_negative_element){
 TEST(insert_test, insert_2_clashing_elements){
   CuckooHash table;
 
-  ASSERT_TRUE(table.empty());
-
-  table.insert(1);
-  table.insert(14);
+  table.insert(19);
+  table.insert(26);
   ASSERT_EQ(table.size(), 2);
   ASSERT_FALSE(table.empty());
 
-  ASSERT_TRUE(table.contains(1));
-  ASSERT_TRUE(table.contains(13));
+  ASSERT_TRUE(table.contains(19));
+  ASSERT_TRUE(table.contains(26));
   
-  size_t idx_h1_1 = table.get_hash_1(1);
-  size_t idx_h1_13 = table.get_hash_1(13);
+  size_t idx_h1_19 = table.get_hash_1(19);
+  size_t idx_h1_26 = table.get_hash_1(26);
 
-  size_t idx_h2_1 = table.get_hash_2(1);
-  size_t idx_h2_13 = table.get_hash_2(13);
+  size_t idx_h2_19 = table.get_hash_2(19);
+  size_t idx_h2_26 = table.get_hash_2(26);
 
-  //Hashed values should be equal using first hash method but not in the second
-  ASSERT_EQ(idx_h1_1, idx_h1_13);
-  ASSERT_NE(idx_h2_1, idx_h2_13);
+  //Hashed values should be equal using first hash method
+  ASSERT_EQ(idx_h1_19, idx_h1_26);
+  ASSERT_NE(idx_h2_19, idx_h2_26);
 
-  ASSERT_EQ(table.h1_bucket()[idx_h1_1], 1);
-  ASSERT_EQ(table.h2_bucket()[idx_h2_13], 13);
-  
+  ASSERT_EQ(table.h1_bucket()[idx_h1_26], 26);
+  ASSERT_EQ(table.h2_bucket()[idx_h2_19], 19);
 }
+
+//Duplicate elements cannot be present in the structure.
+// TEST(insert_test, no_duplicate_elements){
+//   CuckooHash table;
+
+//   table.insert(12);
+
+//   ASSERT_TRUE(table.contains(12));
+//   ASSERT_EQ(table.size(), 1);
+//   ASSERT_
+
+  
+// }
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-//    ::testing::GTEST_FLAG(filter) = "basic_rehash_test.*";
+  //::testing::GTEST_FLAG(filter) = "basic_rehash_test.*";
   return RUN_ALL_TESTS();
 }
