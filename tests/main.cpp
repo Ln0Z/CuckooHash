@@ -214,6 +214,20 @@ TEST(insert_test, exceeding_max_steps_rehashes){
   }
 }
 
+//Duplicate elements cannot be present in the structure.
+TEST(insert_test, no_duplicate_elements){
+  CuckooHash table;
+
+  table.insert(12);
+
+  ASSERT_EQ(table.contains(12), 1);
+  ASSERT_EQ(table.size(), 1);
+  table.insert(12);
+  
+  ASSERT_EQ(table.contains(12), 1);
+  ASSERT_EQ(table.size(), 1);
+}
+
 TEST(insert_test, inserts_random_values_stress) {
     CuckooHash table;
     std::unordered_set<int> standard;
@@ -378,24 +392,6 @@ TEST(insert_test, insert_2_clashing_elements){
   ASSERT_EQ(table.find(14).value(), 14);
   ASSERT_EQ(table.find(1).value(), 1);
 }
-
-//Duplicate elements cannot be present in the structure.
-TEST(insert_test, no_duplicate_elements){
-  CuckooHash table;
-
-  table.insert(12);
-
-  ASSERT_EQ(table.contains(12), 1);
-  ASSERT_EQ(table.size(), 1);
-  table.insert(12);
-  
-  ASSERT_EQ(table.contains(12), 1);
-  ASSERT_EQ(table.size(), 1);
-}
-
-
-
-
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
