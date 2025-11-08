@@ -6,10 +6,8 @@ void CuckooHash::insert(int key){
 
     //Initialise variables
     size_t hash = hash_1(key);
-    ++size_;
     bool is_hash_1 = true;
     int cuckoo{0}, counter{0}, last_key = key;
-    float load_factor_ = load_factor();
     
     //Run a loop where the check will alternatively check each vector to see if the hashed key value has a stored value in the bucket
     //If a value is contained in the bucket, evict the value and then rehash the value into the other bucket
@@ -18,6 +16,7 @@ void CuckooHash::insert(int key){
         if (is_hash_1){
             if (!(h1[hash].has_value())){
                 h1[hash] = key;
+                ++size_;
                 break;
             } else{
                 cuckoo = last_key = h1[hash].value();
@@ -28,6 +27,7 @@ void CuckooHash::insert(int key){
         } else{
             if (!(h2[hash].has_value())){
                 h2[hash] = cuckoo;
+                ++size_;
                 break;
             } else{
                 key= last_key = h2[hash].value();
@@ -39,9 +39,9 @@ void CuckooHash::insert(int key){
         ++counter;
     }
     if (load_factor() > max_load || counter == max_steps){
-        std::cout << "Triggering Rehash" << "\n";
+        //std::cout << "Triggering Rehash \n";
         ++size_index;
-        max_steps = log2(sizes[size_index]);
+        max_steps = 6 * (float)(std::ceil(log2(sizes[size_index])));
         rehash(sizes[size_index]);
         //If max steps case is triggered, the last key that was evicted does not get inserted when it toggles a rehash
         //So attempt to reinsert the key again after rehash
@@ -123,12 +123,13 @@ size_t CuckooHash::size() const{
     return size_;
 }
 
+//Multiply by 2 as capacity_ tracks the capacity per bucket
 size_t CuckooHash::capacity() const{
-    return capacity_;
+    return 2 * capacity_;
 }
 
 float CuckooHash::load_factor() const{
-    return (float)size_ / (2 * capacity_);
+    return (float) size_ / capacity();
 }
 
 const std::vector<std::optional<int>>& CuckooHash::h1_bucket() const{
@@ -147,10 +148,10 @@ size_t CuckooHash::get_hash_2(int key){
     return hash_2(key);
 }
 
-//Basic hash functions to be overloaded Randomised child classes for approach implementation.
+//Basic hash functions to be overloaded Randomised child class for randomised approach implementation.
 size_t CuckooHash::hash_1(int key){
-    return ((7 * (key + 3)) % 101) % capacity_;
+    return (7 * (key + 3)) % capacity_;
 }
 size_t CuckooHash::hash_2(int key){
-    return (5 * (key + 1) % 103) % capacity_;
+    return (5 * (key + 1)) % capacity_;
 }
