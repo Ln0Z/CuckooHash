@@ -41,11 +41,11 @@ void CuckooHash::insert(int key){
     if (load_factor() > max_load || counter == max_steps){
         //std::cout << "Triggering Rehash \n";
         ++size_index;
-        max_steps = 6 * (float)(std::ceil(log2(sizes[size_index])));
+        max_steps = 6 * static_cast<size_t>((std::ceil(log2(sizes[size_index]))));
         if (size_index < sizes.size()) {
             rehash(sizes[size_index]);
         } else{
-            std::runtime_error("Exceeded maximum size of hash table" + sizes[sizes.size() - 1]);
+            throw std::runtime_error("Exceeded maximum size of hash table" + sizes[sizes.size() - 1]);
         }
         //If max steps case is triggered, the last key that was evicted does not get inserted when it toggles a rehash
         //So attempt to reinsert the key again after rehash
@@ -133,7 +133,7 @@ size_t CuckooHash::capacity() const{
 }
 
 float CuckooHash::load_factor() const{
-    return (float) size_ / capacity();
+    return static_cast<float>(size_) / capacity();
 }
 
 const std::vector<std::optional<int>>& CuckooHash::h1_bucket() const{
