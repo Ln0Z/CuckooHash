@@ -8,13 +8,21 @@ class CuckooHash{
     public: 
         CuckooHash() : size_index(0), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(static_cast<size_t>(6 * std::ceil(log2(sizes[size_index])))), h1(capacity_), h2(capacity_) {}
 
-        CuckooHash(const std::initializer_list<int>& vals) : size_(0), capacity_(8), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_){
-            for (int x : vals){
-                insert(x);
-            }
+        CuckooHash(const std::initializer_list<int>& vals) 
+            : size_index(0),
+            size_(0),
+            capacity_(sizes[size_index]),
+            max_load(0.5),
+            max_steps(static_cast<size_t>(6 * std::ceil(log2(sizes[size_index])))),
+            h1(capacity_),
+            h2(capacity_) {
+                for (int x : vals){
+                    insert(x);
+                }
         }
 
-                class iterator{
+
+        class iterator{
             public:
                 iterator(std::vector<std::optional<int>>& h1, std::vector<std::optional<int>>& h2) : h1_ptr(h1.begin()), h2_ptr(h2.begin()) {}
 
@@ -54,6 +62,7 @@ class CuckooHash{
         //Main functionality
         virtual void insert(int key);
         int contains(int key);
+        std::optional<int> find(int key);
         bool erase(int key);
         void clear();
         bool empty();
