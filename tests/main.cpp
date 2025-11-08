@@ -22,7 +22,7 @@ namespace{
     }
 }
 
-TEST(rehash_test, load_factor_calc){
+TEST(hash_test, load_factor_calc){
   std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
   CuckooHash table;
 
@@ -32,7 +32,7 @@ TEST(rehash_test, load_factor_calc){
   }
 }
 
-TEST(rehash_test, load_factor_calc_after_rehash){
+TEST(hash_test, load_factor_calc_after_rehash){
   std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
   CuckooHash table;
 
@@ -42,7 +42,7 @@ TEST(rehash_test, load_factor_calc_after_rehash){
   }
 }
 
-TEST(rehash_test, load_factor_calc_after_multiple_rehash){
+TEST(hash_test, load_factor_calc_after_multiple_rehash){
   std::unordered_set<int> values = random_set(200, 0, 500);
   CuckooHash table;
 
@@ -50,6 +50,39 @@ TEST(rehash_test, load_factor_calc_after_multiple_rehash){
     ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
     table.insert(i);
   }
+}
+
+// Insert 1 element
+TEST(insert_test, insert_single_element){
+  CuckooHash table;
+  std::unordered_set<int> standard;
+
+  ASSERT_TRUE(table.empty());
+  ASSERT_EQ(table.contains(4) == -1, !standard.contains(4));
+
+  table.insert(4);
+  standard.insert(4);
+
+  ASSERT_EQ(table.contains(4) == 1, standard.contains(4));
+  ASSERT_EQ(table.size(), standard.size());
+  ASSERT_EQ(table.empty(), standard.empty());
+
+  size_t idx1 = table.get_hash_1(4);
+  ASSERT_EQ(*table.find(4), *standard.find(4));
+}
+
+// Insert negative elements
+TEST(insert_test, insert_negative_element){
+  CuckooHash table;
+  std::unordered_set<int> standard;
+
+  table.insert(-12);
+  standard.insert(-12);
+
+  ASSERT_EQ(table.contains(-12) == 1, standard.contains(-12));
+  ASSERT_EQ(table.size(), standard.size());
+  ASSERT_EQ(table.empty(), standard.empty());
+  ASSERT_EQ(*table.find(-12), *standard.find(-12));
 }
 
 TEST(insert_test, insert_10_elements) {
@@ -246,38 +279,6 @@ TEST(erase_test, size_decrement_works){
   ASSERT_EQ(table.size(), standard.size());
 }
 
-// Insert 1 element
-TEST(insert_test, insert_single_element){
-  CuckooHash table;
-  std::unordered_set<int> standard;
-
-  ASSERT_TRUE(table.empty());
-  ASSERT_EQ(table.contains(4) == -1, !standard.contains(4));
-
-  table.insert(4);
-  standard.insert(4);
-
-  ASSERT_EQ(table.contains(4) == 1, standard.contains(4));
-  ASSERT_EQ(table.size(), standard.size());
-  ASSERT_EQ(table.empty(), standard.empty());
-
-  size_t idx1 = table.get_hash_1(4);
-  ASSERT_EQ(*table.find(4), *standard.find(4));
-}
-
-// Insert negative elements
-TEST(insert_test, insert_negative_element){
-  CuckooHash table;
-  std::unordered_set<int> standard;
-
-  table.insert(-12);
-  standard.insert(-12);
-
-  ASSERT_EQ(table.contains(-12) == 1, standard.contains(-12));
-  ASSERT_EQ(table.size(), standard.size());
-  ASSERT_EQ(table.empty(), standard.empty());
-  ASSERT_EQ(*table.find(-12), *standard.find(-12));
-}
 
 // Insert 2 Elements where they clash
 TEST(insert_test, insert_2_clashing_elements){
@@ -342,7 +343,7 @@ TEST(insert_test, exceeding_max_steps_rehashes){
   }
 }
 
-TEST(insert_test, inserts_random_values) {
+TEST(insert_test, inserts_random_values_stress) {
     CuckooHash table;
     std::unordered_set<int> standard;
 
@@ -358,7 +359,7 @@ TEST(insert_test, inserts_random_values) {
     }
 }
 
-TEST(basic_func_test, hash_distribution) {
+TEST(hash_test, hash_distribution) {
     CuckooHash table;
 
     std::vector<int> keys;
