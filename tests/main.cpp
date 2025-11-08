@@ -3,14 +3,15 @@
 #include "cuckoo_hash.hpp"
 #include <limits.h>
 #include <iostream>
+#include <algorithm>
 
 namespace{
-    std::vector<int> random_set(int total_numbers){
+    std::vector<int> random_set(int total_numbers, int low_rage, int high_range){
         std::random_device rand;
         std::uniform_int_distribution<int> seed_dist(1, 50);
         int seed = seed_dist(rand);
         std::mt19937 rng(seed);
-        std::uniform_int_distribution<int> dist(1, 100);
+        std::uniform_int_distribution<int> dist(low_rage, high_range);
         std::vector<int> random_set;
 
         for (size_t i = 0; i < total_numbers; ++i){
@@ -20,7 +21,7 @@ namespace{
     }
 }
 
-TEST(basic_insert_test, insert_10_elements) {
+TEST(insert_test, insert_10_elements) {
   std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
   CuckooHash table;
 
@@ -45,7 +46,7 @@ TEST(basic_insert_test, insert_10_elements) {
     }
 }
 
-TEST(basic_rehash_test, insert_cause_rehash) {
+TEST(basic_func_test, insert_cause_rehash) {
   std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
   CuckooHash table;
 
@@ -90,7 +91,21 @@ TEST(basic_rehash_test, insert_cause_rehash) {
   }
 }
 
-TEST(basic_remove_test, insert_10_elements) {
+TEST(erase_test, erase_same_key_twice){
+  CuckooHash table;
+  ASSERT_TRUE(table.empty());
+
+  table.insert(15);
+
+  table.erase(15);
+
+  ASSERT_EQ(table.contains(15), -1);
+  ASSERT_TRUE(table.empty());
+
+  table.erase(15);
+}
+
+TEST(erase_test, insert_and_erase_10_elements) {
   std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
   CuckooHash table;
 
@@ -233,10 +248,23 @@ TEST(insert_test, exceeding_max_steps_rehashes){
   }
 }
 
+TEST(insert_test, inserts_random_values) {
+    CuckooHash table;
+    std::vector<int> values = random_set(100, 0, 100);
+    for (int v : values) {
+        table.insert(v);
+    }
+   
+    for (int v : values) {
+        ASSERT_TRUE(table.contains(v) == 1 || table.contains(v) == 2);
+    }
+
+    ASSERT_GE(table.capacity(), 100);
+}
 
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::GTEST_FLAG(filter) = "insert_test.exceeding_max_steps_rehashes";
+  //::testing::GTEST_FLAG(filter) = "random_insert_test.inserts_random_values";
   return RUN_ALL_TESTS();
 }
