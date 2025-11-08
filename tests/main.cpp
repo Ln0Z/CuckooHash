@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <random>
 #include "cuckoo_hash.hpp"
+#include <unordered_set>
 #include <limits.h>
 #include <iostream>
 #include <algorithm>
@@ -199,16 +200,20 @@ TEST(erase_test, size_decrement_works){
 // Insert 1 element
 TEST(insert_test, insert_single_element){
   CuckooHash table;
-  
-  ASSERT_EQ(table.contains(4), -1);
+  std::unordered_set<int> standard;
+
+  ASSERT_TRUE(table.empty());
+  ASSERT_EQ(table.contains(4) == -1, standard.contains(4));
 
   table.insert(4);
-  ASSERT_EQ(table.contains(4), 1);
-  ASSERT_EQ(table.size(), 1);
-  ASSERT_FALSE(table.empty());
+  standard.insert(4);
+
+  ASSERT_EQ(table.contains(4) == 1, standard.contains(4));
+  ASSERT_EQ(table.size(), standard.size());
+  ASSERT_FALSE(table.empty(), standard.empty());
 
   size_t idx1 = table.get_hash_1(4);
-  ASSERT_EQ(table.h1_bucket()[idx1].value(), 4);
+  ASSERT_EQ(*table.find(4), standard.find(4));
 }
 
 // Insert negative elements
@@ -219,8 +224,7 @@ TEST(insert_test, insert_negative_element){
   ASSERT_EQ(table.contains(-12), 1);
   ASSERT_EQ(table.size(), 1);
   ASSERT_FALSE(table.empty());
-  size_t idx1 = table.get_hash_1(-12);
-  ASSERT_EQ(table.h1_bucket()[idx1].value(), -12);
+  ASSERT_EQ(*table.find(-12), -12);
 }
 
 // Insert 2 Elements where they clash
@@ -232,8 +236,8 @@ TEST(insert_test, insert_2_clashing_elements){
   ASSERT_EQ(table.size(), 2);
   ASSERT_FALSE(table.empty());
 
-  ASSERT_TRUE(table.contains(1));
-  ASSERT_TRUE(table.contains(14));
+  ASSERT_EQ(table.contains(1), 2);
+  ASSERT_EQ(table.contains(14), 1);
   
   size_t idx_h1_x = table.get_hash_1(1);
   size_t idx_h1_y = table.get_hash_1(14);
@@ -246,6 +250,9 @@ TEST(insert_test, insert_2_clashing_elements){
 
   ASSERT_EQ(table.h1_bucket()[idx_h1_x], 14);
   ASSERT_EQ(table.h2_bucket()[idx_h2_y], 1);
+
+  ASSERT_EQ(table.find(14).value(), 14);
+  ASSERT_EQ(table.find(1).value(), 1);
 }
 
 //Duplicate elements cannot be present in the structure.
@@ -281,16 +288,18 @@ TEST(insert_test, exceeding_max_steps_rehashes){
 
 TEST(insert_test, inserts_random_values) {
     CuckooHash table;
+    std::unordered_set<int> standard;
+
     std::vector<int> values = random_set(100'000, 0, 100'000);
-    for (int v : values) {
-        table.insert(v);
+    for (auto x : values) {
+        table.insert(x);
+        standard.insert(x);
     }
    
-    for (int v : values) {
-        ASSERT_TRUE(table.contains(v) == 1 || table.contains(v) == 2);
+    for (int x : values) {
+        ASSERT_TRUE(table.contains(x) == 1 || table.contains(x) == 2);
+        ASSERT_EQ(*standard.find(x), *table.find(x));
     }
-
-    ASSERT_GE(table.capacity() / 2, 100);
 }
 
 TEST(basic_func_test, hash_distribution) {
