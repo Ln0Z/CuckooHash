@@ -7,28 +7,48 @@
 #include <algorithm>
 
 namespace{
-    std::vector<int> random_set(int total_numbers, int low_rage, int high_range){
+    std::unordered_set<int> random_set(int total_numbers, int low_rage, int high_range){
         std::random_device rand;
         std::uniform_int_distribution<int> seed_dist(1, 50);
         int seed = seed_dist(rand);
         std::mt19937 rng(seed);
         std::uniform_int_distribution<int> dist(low_rage, high_range);
-        std::vector<int> random_set;
+        std::unordered_set<int> random_set;
 
         for (size_t i = 0; i < total_numbers; ++i){
-            random_set.push_back(dist(rng));
+            random_set.insert(dist(rng));
         }
         return random_set;
     }
 }
 
-TEST(basic_func_test, load_factor_calc){
+TEST(rehash_test, load_factor_calc){
   std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
   CuckooHash table;
 
   for (size_t i = 0; i < values.size(); ++i) {
-    ASSERT_EQ(table.load_factor(), (float)i/26);
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(26));
     table.insert(values[i]);
+  }
+}
+
+TEST(rehash_test, load_factor_calc_after_rehash){
+  std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
+    table.insert(values[i]);
+  }
+}
+
+TEST(rehash_test, load_factor_calc_after_multiple_rehash){
+  std::unordered_set<int> values = random_set(200, 0, 500);
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
+    table.insert(i);
   }
 }
 
@@ -66,6 +86,8 @@ TEST(insert_test, insert_10_elements) {
 TEST(basic_func_test, insert_cause_rehash) {
   std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
   CuckooHash table;
+
+  ASSERT_LT(table.capacity(), 58);
 
   for (size_t i = 0; i < values.size(); ++i) {
     table.insert(values[i]);
@@ -324,7 +346,7 @@ TEST(insert_test, inserts_random_values) {
     CuckooHash table;
     std::unordered_set<int> standard;
 
-    std::vector<int> values = random_set(100'000, 0, 100'000);
+    std::unordered_set<int> values = random_set(100'000, 0, 100'000);
     for (auto x : values) {
         table.insert(x);
         standard.insert(x);
