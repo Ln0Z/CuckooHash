@@ -117,9 +117,11 @@ TEST(erase_test, erase_same_key_twice){
 TEST(erase_test, insert_and_erase_10_elements) {
   std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
   CuckooHash table;
+  std::unordered_set<int> standard;
 
   for (size_t i = 0; i < values.size(); ++i) {
     table.insert(values[i]);
+    standard.insert(values[i]);
   }
   
   std::vector<std::optional<int>> h1_results{23, 12, 53, 3, std::nullopt, std::nullopt, std::nullopt, 11, 39, 2, 
@@ -138,9 +140,18 @@ TEST(erase_test, insert_and_erase_10_elements) {
     ASSERT_EQ(table.h2_bucket()[i], h2_results[i]);
   }
 
-  for (size_t i = 0; i < values.size(); ++i) {
-    table.erase(values[i]);
+  for (int x : values){
+    ASSERT_EQ(table.find(x), standard.find(x));
   }
+
+  ASSERT_EQ(table.size(), standard.size());
+
+  for(int x : table){
+    table.erase(values[i]);
+    standard.erase(values[i]);
+  }
+  
+  ASSERT_EQ(table.size(), standard.size());
 
   for (size_t i = 0; i < h1_results.size(); ++i) {
     ASSERT_EQ(table.h1_bucket()[i], std::nullopt);
