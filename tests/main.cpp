@@ -293,7 +293,32 @@ TEST(insert_test, inserts_random_values) {
     ASSERT_GE(table.capacity() / 2, 100);
 }
 
+TEST(basic_func_test, hash_distribution) {
+    CuckooHash table;
 
+    std::vector<int> keys;
+    for (int i = 0; i < 1000; ++i){
+      keys.push_back(i);
+    }
+    
+    std::vector<int> counts_h1(table.capacity() / 2, 0);
+    std::vector<int> counts_h2(table.capacity() / 2, 0);
+
+    for (int key : keys) {
+        size_t idx1 = table.get_hash_1(key);
+        size_t idx2 = table.get_hash_2(key);
+
+        counts_h1[idx1]++;
+        counts_h2[idx2]++;
+    }
+
+    int max_load_h1 = *std::max_element(counts_h1.begin(), counts_h1.end());
+    int max_load_h2 = *std::max_element(counts_h2.begin(), counts_h2.end());
+
+    float avg_load = (float)keys.size() / counts_h1.size();
+    ASSERT_LE(max_load_h1, 2 * avg_load);
+    ASSERT_LE(max_load_h2, 2 * avg_load);
+}
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
