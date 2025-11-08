@@ -114,6 +114,8 @@ TEST(erase_test, erase_same_key_twice){
 
   table.insert(15);
   standard.insert(15);
+
+  ASSERT_EQ(table.size(), standard.size());
   
   table.erase(15);
   standard.erase(15);
@@ -194,27 +196,32 @@ TEST(basic_func_test, hash_below_capacity){
 
 TEST(insert_test, size_increment_works){
   CuckooHash table;
+  std::unordered_set<int> standard;
 
   for (size_t i = 0; i < 100; ++i){
     table.insert(i);
+    standard.insert(i);  
   }
 
-  ASSERT_EQ(table.size(), 100);
+  ASSERT_EQ(table.size(), standard.size());
 }
 
 TEST(erase_test, size_decrement_works){
   CuckooHash table;
+  std::unordered_set<int> standard;
 
   for (size_t i = 0; i < 100; ++i){
     table.insert(i);
+    standard.insert(i);  
   }
 
-  ASSERT_EQ(table.size(), 100);
-
+  ASSERT_EQ(table.size(), standard.size());
+  
   for (size_t i = 0; i < 100; ++i){
     table.erase(i);
+    standard.erase(i);
   }
-  ASSERT_EQ(table.size(), 0);
+  ASSERT_EQ(table.size(), standard.size());
 }
 
 // Insert 1 element
