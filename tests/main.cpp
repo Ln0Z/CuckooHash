@@ -355,6 +355,28 @@ TEST(erase_test, size_decrement_works){
   ASSERT_EQ(table.size(), standard.size());
 }
 
+TEST(erase_test, insert_and_erase_random_values_stress) {
+    CuckooHash table;
+    std::unordered_set<int> standard;
+
+    std::unordered_set<int> values = random_set(100'000, 0, 100'000);
+    for (auto x : values) {
+        table.insert(x);
+        standard.insert(x);
+    }
+   
+    for (int x : values) {
+        ASSERT_TRUE(table.contains(x) == 1 || table.contains(x) == 2);
+        ASSERT_EQ(*standard.find(x), *table.find(x));
+    }
+
+    for (int x : values) {
+      table.erase(x);
+      standard.erase(x);
+    }
+
+    ASSERT_EQ(standard.size(), table.size());
+}
 
 // <-----------------------------------------------------------------BASIC FUNCTIONALITY TESTS-------------------------------------------------------------->
 
