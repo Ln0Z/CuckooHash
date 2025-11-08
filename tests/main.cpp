@@ -143,7 +143,7 @@ TEST(insert_test, insert_10_elements) {
   }
 }
 
-TEST(basic_func_test, insert_cause_rehash) {
+TEST(insert_test, insert_cause_rehash) {
   std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
   CuckooHash table;
 
@@ -252,13 +252,30 @@ TEST(erase_test, insert_and_erase_10_elements) {
   }
 }
 
-// Tests for cuckoo hash table,
+TEST(erase_test, size_decrement_works){
+  CuckooHash table;
+  std::unordered_set<int> standard;
+
+  for (size_t i = 0; i < 100; ++i){
+    table.insert(i);
+    standard.insert(i);  
+  }
+
+  ASSERT_EQ(table.size(), standard.size());
+  
+  for (size_t i = 0; i < 100; ++i){
+    table.erase(i);
+    standard.erase(i);
+  }
+  ASSERT_EQ(table.size(), standard.size());
+}
 
 TEST(basic_func_test, is_empty){
   CuckooHash table;
+  std::unordered_set<int> standard;
 
   ASSERT_TRUE(table.empty());
-  ASSERT_EQ(table.size(), 0);
+  ASSERT_EQ(table.size(), standard.size());
   ASSERT_EQ(table.capacity(), 26);
 }
 
@@ -287,25 +304,6 @@ TEST(insert_test, size_increment_works){
 
   ASSERT_EQ(table.size(), standard.size());
 }
-
-TEST(erase_test, size_decrement_works){
-  CuckooHash table;
-  std::unordered_set<int> standard;
-
-  for (size_t i = 0; i < 100; ++i){
-    table.insert(i);
-    standard.insert(i);  
-  }
-
-  ASSERT_EQ(table.size(), standard.size());
-  
-  for (size_t i = 0; i < 100; ++i){
-    table.erase(i);
-    standard.erase(i);
-  }
-  ASSERT_EQ(table.size(), standard.size());
-}
-
 
 // Insert 2 Elements where they clash
 TEST(insert_test, insert_2_clashing_elements){
