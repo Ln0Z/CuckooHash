@@ -120,7 +120,7 @@ TEST(erase_test, erase_same_key_twice){
   table.erase(15);
   standard.erase(15);
 
-  ASSERT_EQ(table.contains(15) == -1, standard.contains(15));
+  ASSERT_EQ(table.contains(15) == -1, !standard.contains(15));
   ASSERT_EQ(table.empty(), standard.empty());
   ASSERT_FALSE(table.erase(15));
 }
@@ -246,12 +246,15 @@ TEST(insert_test, insert_single_element){
 // Insert negative elements
 TEST(insert_test, insert_negative_element){
   CuckooHash table;
+  std::unordered_set<int> standard;
 
   table.insert(-12);
-  ASSERT_EQ(table.contains(-12), 1);
-  ASSERT_EQ(table.size(), 1);
-  ASSERT_FALSE(table.empty());
-  ASSERT_EQ(*table.find(-12), -12);
+  standard.insert(-12);
+
+  ASSERT_EQ(table.contains(-12) == 1, standard.contains(-12));
+  ASSERT_EQ(table.size(), standard.size());
+  ASSERT_EQ(table.empty(), standard.empty());
+  ASSERT_EQ(*table.find(-12), *standard.find(-12));
 }
 
 // Insert 2 Elements where they clash
@@ -301,10 +304,14 @@ TEST(insert_test, exceeding_max_steps_rehashes){
 
   std::vector<int> values{1, 14, 27, 41, 54, 61, 81, 88};
 
+  ASSERT_EQ(table.capacity(), 26);
+
   for(size_t i = 0; i < values.size(); ++i){
     table.insert(values[i]);
   }
 
+  //Previous load factor prior to rehash does not exceed the threshold
+  ASSERT_LT(static_cast<float>(table.size() / 26), 0.5f);
   ASSERT_EQ(table.capacity(), 58);
   ASSERT_EQ(table.size(), 8);
 
