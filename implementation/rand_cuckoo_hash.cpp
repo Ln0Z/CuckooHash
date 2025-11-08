@@ -2,14 +2,12 @@
 #include <iostream>
 
 // create hash using Carter and Wegmans' ((ax+b) mod p) mod m
-
-// TODO: normalize incoming negative keys
 size_t RandCuckooHash::hash_1(int key) {
-    return (((uint64_t)a1 * key + b1) % modulus_p) % capacity_;
+    return (realModulo((int64_t)a1 * key + b1, modulus_p)) % capacity_;
 }
 
 size_t RandCuckooHash::hash_2(int key) {
-    return (((uint64_t)a2 * key + b2) % modulus_p) % capacity_;
+    return (realModulo((int64_t)a2 * key + b2, modulus_p)) % capacity_;
 }
 
 void RandCuckooHash::printHash1() {
@@ -31,8 +29,9 @@ void RandCuckooHash::genNewHashes() {
 
 void RandCuckooHash::rehash(size_t new_size) {
     genNewHashes();
-    this->printHash1();
-    this->printHash2();
 
     CuckooHash::rehash(new_size);
+
+    this->printHash1();
+    this->printHash2();
 }
