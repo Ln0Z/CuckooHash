@@ -68,6 +68,20 @@ int CuckooHash::contains(int key){
     return -1;
 }
 
+//Find checks if a given key is in the hashtable
+std::optional<int> CuckooHash::find(int key){
+    size_t key_1 = hash_1(key);
+    size_t key_2 = hash_2(key);
+    
+    //Check if value is in vec h1 and resets to default std::optional<int>
+    if (h1[key_1] && *h1[key_1] == key){
+        return h1[key_1];
+    } else if (h2[key_2] && *h2[key_2] == key){
+        return h2[key_2];
+    }
+    return std::nullopt;
+}
+
 
 bool CuckooHash::erase(int key){
     //Hash both key for both vectors.
@@ -133,7 +147,7 @@ size_t CuckooHash::capacity() const{
 }
 
 float CuckooHash::load_factor() const{
-    return static_cast<float>(size_) / capacity();
+    return static_cast<float>(size_) / static_cast<float>(capacity());
 }
 
 const std::vector<std::optional<int>>& CuckooHash::h1_bucket() const{
