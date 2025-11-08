@@ -234,7 +234,9 @@ TEST(insert_test, exceeding_max_steps_rehashes) {
     }
 }
 
-TEST(rand_insert_test, insert_10_elements) {
+// RandCuckooHash table tests
+
+TEST(rand_cuckoo_tests, basic_functionality_test) {
     std::vector<int> values{1, 34, -1, -5, 12, 39, -124, 2147483647, 2, 11, 2345, 341, 456, -123, -213, -3423, -23, 1343, 5676, 6755646, 2343243, 675465233, 3235436, 342353, 3435434, 23542, 223434565, 2132114412};
     RandCuckooHash table;
 
@@ -251,11 +253,62 @@ TEST(rand_insert_test, insert_10_elements) {
     EXPECT_EQ(table.contains(39), -1);
 }
 
+TEST(rand_cuckoo_tests, hash_below_capacity) {
+    RandCuckooHash table;
+
+    int large_number = INT_MAX / 2;
+
+    size_t idx_h1 = table.get_hash_1(large_number);
+    size_t idx_h2 = table.get_hash_2(large_number);
+
+    ASSERT_TRUE(idx_h1 < table.capacity());
+    ASSERT_TRUE(idx_h2 < table.capacity());
+    ASSERT_NE(idx_h1, idx_h2);
+}
+
+TEST(rand_cuckoo_tests, insert_single_element) {
+    RandCuckooHash table;
+
+    ASSERT_EQ(table.contains(4), -1);
+
+    table.insert(4);
+    ASSERT_EQ(table.contains(4), 1);
+    ASSERT_EQ(table.size(), 1);
+    ASSERT_FALSE(table.empty());
+
+    size_t idx1 = table.get_hash_1(4);
+    ASSERT_EQ(table.h1_bucket()[idx1].value(), 4);
+}
+
+TEST(rand_cuckoo_tests, insert_negative_element) {
+    RandCuckooHash table;
+
+    table.insert(-12);
+    ASSERT_EQ(table.contains(-12), 1);
+    ASSERT_EQ(table.size(), 1);
+    ASSERT_FALSE(table.empty());
+    size_t idx1 = table.get_hash_1(-12);
+    ASSERT_EQ(table.h1_bucket()[idx1].value(), -12);
+}
+
+TEST(rand_cuckoo_tests, no_duplicate_elements) {
+    RandCuckooHash table;
+
+    table.insert(12);
+
+    ASSERT_EQ(table.contains(12), 1);
+    ASSERT_EQ(table.size(), 1);
+    table.insert(12);
+
+    ASSERT_EQ(table.contains(12), 1);
+    ASSERT_EQ(table.size(), 1);
+}
+
 // Universal hash family tests
 
 TEST(universal_hash_family, test_single_hash_collision_rate) {
     // make table with capacity 1109, random hashes chosen
-    RandCuckooHash table(6);
+    RandCuckooHash table(6, true);
 
     std::mt19937 gen(std::random_device{}());
     std::uniform_int_distribution<int32_t> int32_range(-2'147'483'647, 2'147'483'647);
@@ -308,7 +361,7 @@ TEST(universal_hash_family, test_family_universality) {
 
     // init new table, hashes are randomly chosen
     // make table capacity 1109
-    RandCuckooHash table(6);
+    RandCuckooHash table(6, true);
     for (int i = 0; i < num_of_runs; i++) {
 
         if (table.hash_1(x1) == table.hash_1(y1)) pair1_collisions++;
