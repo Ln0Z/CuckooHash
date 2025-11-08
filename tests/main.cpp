@@ -193,6 +193,27 @@ TEST(insert_test, insert_cause_rehash) {
   }
 }
 
+TEST(insert_test, exceeding_max_steps_rehashes){
+  CuckooHash table;
+
+  std::vector<int> values{1, 14, 27, 41, 54, 61, 81, 88};
+
+  ASSERT_EQ(table.capacity(), 26);
+
+  for(size_t i = 0; i < values.size(); ++i){
+    table.insert(values[i]);
+  }
+
+  //Previous load factor prior to rehash does not exceed the threshold
+  ASSERT_LT(static_cast<float>(table.size() / 26), 0.5f);
+  ASSERT_EQ(table.capacity(), 58);
+  ASSERT_EQ(table.size(), 8);
+
+  for(int v : values){
+    ASSERT_TRUE(table.contains(v) == 1 || table.contains(v) == 2);
+  }
+}
+
 TEST(insert_test, inserts_random_values_stress) {
     CuckooHash table;
     std::unordered_set<int> standard;
@@ -372,26 +393,7 @@ TEST(insert_test, no_duplicate_elements){
   ASSERT_EQ(table.size(), 1);
 }
 
-TEST(insert_test, exceeding_max_steps_rehashes){
-  CuckooHash table;
 
-  std::vector<int> values{1, 14, 27, 41, 54, 61, 81, 88};
-
-  ASSERT_EQ(table.capacity(), 26);
-
-  for(size_t i = 0; i < values.size(); ++i){
-    table.insert(values[i]);
-  }
-
-  //Previous load factor prior to rehash does not exceed the threshold
-  ASSERT_LT(static_cast<float>(table.size() / 26), 0.5f);
-  ASSERT_EQ(table.capacity(), 58);
-  ASSERT_EQ(table.size(), 8);
-
-  for(int v : values){
-    ASSERT_TRUE(table.contains(v) == 1 || table.contains(v) == 2);
-  }
-}
 
 
 
