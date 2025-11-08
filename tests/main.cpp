@@ -228,6 +228,34 @@ TEST(insert_test, no_duplicate_elements){
   ASSERT_EQ(table.size(), 1);
 }
 
+// Insert 2 Elements where they clash
+TEST(insert_test, insert_2_clashing_elements){
+  CuckooHash table;
+
+  table.insert(1);
+  table.insert(14);
+  ASSERT_EQ(table.size(), 2);
+  ASSERT_FALSE(table.empty());
+
+  ASSERT_EQ(table.contains(1), 2);
+  ASSERT_EQ(table.contains(14), 1);
+  
+  size_t idx_h1_x = table.get_hash_1(1);
+  size_t idx_h1_y = table.get_hash_1(14);
+
+  size_t idx_h2_x = table.get_hash_2(1);
+  size_t idx_h2_y = table.get_hash_2(14);
+
+  //Hashed values should be equal using first hash method
+  ASSERT_EQ(idx_h1_x, idx_h1_y);
+
+  ASSERT_EQ(table.h1_bucket()[idx_h1_x], 14);
+  ASSERT_EQ(table.h2_bucket()[idx_h2_y], 1);
+
+  ASSERT_EQ(table.find(14).value(), 14);
+  ASSERT_EQ(table.find(1).value(), 1);
+}
+
 TEST(insert_test, inserts_random_values_stress) {
     CuckooHash table;
     std::unordered_set<int> standard;
@@ -363,34 +391,6 @@ TEST(insert_test, size_increment_works){
   }
 
   ASSERT_EQ(table.size(), standard.size());
-}
-
-// Insert 2 Elements where they clash
-TEST(insert_test, insert_2_clashing_elements){
-  CuckooHash table;
-
-  table.insert(1);
-  table.insert(14);
-  ASSERT_EQ(table.size(), 2);
-  ASSERT_FALSE(table.empty());
-
-  ASSERT_EQ(table.contains(1), 2);
-  ASSERT_EQ(table.contains(14), 1);
-  
-  size_t idx_h1_x = table.get_hash_1(1);
-  size_t idx_h1_y = table.get_hash_1(14);
-
-  size_t idx_h2_x = table.get_hash_2(1);
-  size_t idx_h2_y = table.get_hash_2(14);
-
-  //Hashed values should be equal using first hash method
-  ASSERT_EQ(idx_h1_x, idx_h1_y);
-
-  ASSERT_EQ(table.h1_bucket()[idx_h1_x], 14);
-  ASSERT_EQ(table.h2_bucket()[idx_h2_y], 1);
-
-  ASSERT_EQ(table.find(14).value(), 14);
-  ASSERT_EQ(table.find(1).value(), 1);
 }
 
 int main(int argc, char *argv[]) {
