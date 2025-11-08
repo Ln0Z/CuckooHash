@@ -99,6 +99,45 @@ TEST(basic_remove_test, insert_10_elements) {
   }
 }
 
+// Universal hash family tests
+
+TEST(universal_hash_family, test_single_hash_collision_rate) {
+    // make table with capacity 1109, random hashes chosen
+    RandCuckooHash table(6);
+
+    std::mt19937 gen(std::random_device{}());
+    std::uniform_int_distribution<int32_t> int32_range(-2'147'483'647, 2'147'483'647);
+
+    int hash1_collisions = 0;
+    int hash2_collisions = 0;
+
+    int num_of_trials = 1000000;
+
+    // count number of collisions for a million different key pairs for each hash
+    for (int i = 0; i < num_of_trials; i++) {
+        int key1 = int32_range(gen);
+        int key2 = int32_range(gen);
+        if (table.hash_1(key1) == table.hash_1(key2)) hash1_collisions++;
+        if (table.hash_2(key1) == table.hash_2(key2)) hash2_collisions++;
+    }
+
+    // expect average collision rate to be about 1 / m
+    float expected =  1 / (float)table.capacity();
+    float hash_1_collision_rate = (float)hash1_collisions / (float)num_of_trials;
+    float hash_2_collision_rate = (float)hash2_collisions / (float)num_of_trials;
+
+    const double standard_error = std::sqrt(expected * (1 - expected) / (float)num_of_trials);
+    const double acceptable_range = standard_error * 3;
+    // ^ uses z-score of 3, so this test should have a 99.7% chance of passing
+
+    std::cout << "Expected collision rate: " << expected << std::endl;
+    std::cout << "h1 collision rate: " << hash_1_collision_rate << ", h2 collision rate: " << hash_2_collision_rate;
+
+    // expect collision rate to be = 1/m on average, account for probability
+    EXPECT_NEAR(expected, hash_1_collision_rate, acceptable_range);
+    EXPECT_NEAR(expected, hash_2_collision_rate, acceptable_range);
+}
+
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
 //    ::testing::GTEST_FLAG(filter) = "basic_rehash_test.*";
