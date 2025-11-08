@@ -138,6 +138,50 @@ TEST(universal_hash_family, test_single_hash_collision_rate) {
     EXPECT_NEAR(expected, hash_2_collision_rate, acceptable_range);
 }
 
+TEST(universal_hash_family, test_family_universality) {
+    // pick a few arbitrary fixed pairs to test across many hashes
+    int32_t x1 = -685415863, y1 = 815978995;
+    int32_t x2 = 145536895, y2 = -1307052590;
+    int32_t x3 = 2013660739, y3 = 902458331;
+
+    int pair1_collisions = 0;
+    int pair2_collisions = 0;
+    int pair3_collisions = 0;
+
+    std::mt19937 gen(std::random_device{}());
+
+    int num_of_runs = 1000000;
+    // for each pair, count number of collisions after a
+    // million different hashes from the universal set
+
+    std::cout << "Running hash family universality test..." << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < num_of_runs; i++) {
+        // init new table, new hashes are randomly chosen
+        // make table capacity 1109
+        RandCuckooHash table(6, gen);
+
+        if (table.hash_1(x1) == table.hash_1(y1)) pair1_collisions++;
+        if (table.hash_1(x2) == table.hash_1(y2)) pair2_collisions++;
+        if (table.hash_1(x3) == table.hash_1(y3)) pair3_collisions++;
+//        table.reh
+        // generator is copied not referenced by the constructor, so manually
+        // advance generator by 4 since it is used 4 times in constructor
+        gen.discard(4);
+
+        // cout progress every 5%
+        if (i % (num_of_runs / 20) == 0) std::cout << i / (num_of_runs / 100) << "% completed..." << std::endl;
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = end - start;
+    long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    std::cout << "done in " << milliseconds << "ms \n";
+
+    std::cout << pair1_collisions << std::endl;
+    std::cout << pair2_collisions << std::endl;
+    std::cout << pair3_collisions << std::endl;
+}
+
 int main(int argc, char *argv[]) {
     ::testing::InitGoogleTest(&argc, argv);
     //    ::testing::GTEST_FLAG(filter) = "basic_rehash_test.*";

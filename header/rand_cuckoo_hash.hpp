@@ -15,13 +15,13 @@ public:
         this->printHash2();
     }
 
-    explicit RandCuckooHash(int size_index) : CuckooHash(size_index), generator(std::random_device{}()) {
+    explicit RandCuckooHash(int size_index, std::mt19937 gen = std::mt19937(std::random_device{}())) : CuckooHash(size_index), generator(gen) {
         // call standard CuckooHash constructor and init random generator
         // then generate the hashes
         genNewHashes();
 
-        this->printHash1();
-        this->printHash2();
+//        this->printHash1();
+//        this->printHash2();
     }
 
     void printHash1();
