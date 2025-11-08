@@ -42,7 +42,11 @@ void CuckooHash::insert(int key){
         //std::cout << "Triggering Rehash \n";
         ++size_index;
         max_steps = 6 * (float)(std::ceil(log2(sizes[size_index])));
-        rehash(sizes[size_index]);
+        if (size_index < sizes.size()) {
+            rehash(sizes[size_index]);
+        } else{
+            std::runtime_error("Exceeded maximum size of hash table" + sizes[sizes.size() - 1]);
+        }
         //If max steps case is triggered, the last key that was evicted does not get inserted when it toggles a rehash
         //So attempt to reinsert the key again after rehash
         insert(last_key);
