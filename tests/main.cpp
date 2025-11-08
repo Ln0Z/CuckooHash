@@ -22,6 +22,9 @@ namespace{
     }
 }
 
+
+// <-----------------------------------------------------------------HASH TESTS-------------------------------------------------------------->
+
 TEST(hash_test, load_factor_calc){
   std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
   CuckooHash table;
@@ -79,7 +82,8 @@ TEST(hash_test, hash_distribution) {
     ASSERT_LE(max_load_h2, 2 * avg_load);
 }
 
-// Insert 1 element
+// <-----------------------------------------------------------------INSERT TESTS-------------------------------------------------------------->
+
 TEST(insert_test, insert_single_element){
   CuckooHash table;
   std::unordered_set<int> standard;
@@ -189,6 +193,24 @@ TEST(insert_test, insert_cause_rehash) {
   }
 }
 
+TEST(insert_test, inserts_random_values_stress) {
+    CuckooHash table;
+    std::unordered_set<int> standard;
+
+    std::unordered_set<int> values = random_set(100'000, 0, 100'000);
+    for (auto x : values) {
+        table.insert(x);
+        standard.insert(x);
+    }
+   
+    for (int x : values) {
+        ASSERT_TRUE(table.contains(x) == 1 || table.contains(x) == 2);
+        ASSERT_EQ(*standard.find(x), *table.find(x));
+    }
+}
+
+// <-----------------------------------------------------------------ERASE TESTS-------------------------------------------------------------->
+
 TEST(erase_test, erase_same_key_twice){
   CuckooHash table;
   std::unordered_set<int> standard;
@@ -269,6 +291,9 @@ TEST(erase_test, size_decrement_works){
   }
   ASSERT_EQ(table.size(), standard.size());
 }
+
+
+// <-----------------------------------------------------------------BASIC FUNCTIONALITY TESTS-------------------------------------------------------------->
 
 TEST(basic_func_test, is_empty){
   CuckooHash table;
@@ -368,21 +393,7 @@ TEST(insert_test, exceeding_max_steps_rehashes){
   }
 }
 
-TEST(insert_test, inserts_random_values_stress) {
-    CuckooHash table;
-    std::unordered_set<int> standard;
 
-    std::unordered_set<int> values = random_set(100'000, 0, 100'000);
-    for (auto x : values) {
-        table.insert(x);
-        standard.insert(x);
-    }
-   
-    for (int x : values) {
-        ASSERT_TRUE(table.contains(x) == 1 || table.contains(x) == 2);
-        ASSERT_EQ(*standard.find(x), *table.find(x));
-    }
-}
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
