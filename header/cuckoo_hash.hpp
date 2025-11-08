@@ -7,6 +7,8 @@ class CuckooHash{
     public: 
         CuckooHash() : size_index(0), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_) {}
 
+        explicit CuckooHash(int size_index) : size_index(size_index), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_) {}
+
         CuckooHash(const std::initializer_list<int>& vals) : size_(0), capacity_(8), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_){
             for (int x : vals){
                 insert(x);
