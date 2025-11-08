@@ -171,6 +171,31 @@ TEST(basic_func_test, hash_below_capacity){
   ASSERT_NE(idx_h1, idx_h2);
 }
 
+TEST(insert_test, size_increment_works){
+  CuckooHash table;
+
+  for (size_t i = 0; i < 100; ++i){
+    table.insert(i);
+  }
+
+  ASSERT_EQ(table.size(), 100);
+}
+
+TEST(erase_test, size_decrement_works){
+  CuckooHash table;
+
+  for (size_t i = 0; i < 100; ++i){
+    table.insert(i);
+  }
+
+  ASSERT_EQ(table.size(), 100);
+
+  for (size_t i = 0; i < 100; ++i){
+    table.erase(i);
+  }
+  ASSERT_EQ(table.size(), 0);
+}
+
 // Insert 1 element
 TEST(insert_test, insert_single_element){
   CuckooHash table;
