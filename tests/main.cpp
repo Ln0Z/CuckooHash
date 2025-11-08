@@ -324,9 +324,9 @@ TEST(erase_test, insert_and_erase_10_elements) {
 
   ASSERT_EQ(table.size(), standard.size());
 
-  for(auto x : table){
-    table.erase(*x);
-    standard.erase(*x);
+  for(auto x : values){
+    table.erase(x);
+    standard.erase(x);
   }
 
   ASSERT_EQ(table.size(), standard.size());
@@ -387,6 +387,18 @@ TEST(basic_func_test, is_empty){
   ASSERT_TRUE(table.empty());
   ASSERT_EQ(table.size(), standard.size());
   ASSERT_EQ(table.capacity(), 26);
+}
+
+TEST(basic_func_test, handle_0_insertion){
+  CuckooHash table;
+  std::unordered_set<int> standard;
+
+  ASSERT_EQ(table.contains(0) == 1 || table.contains(0) == 2, standard.contains(0));
+
+  table.insert(0);
+  standard.insert(0);
+
+  ASSERT_EQ(*table.find(0), *standard.find(0));
 }
 
 // Confirm hashing stays within bucket boundaries i.e < capacity
