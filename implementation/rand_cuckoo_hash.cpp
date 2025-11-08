@@ -11,10 +11,10 @@ size_t RandCuckooHash::hash_2(int key) {
 }
 
 void RandCuckooHash::printHash1() {
-    std::cout << "h1 = ((" << a1 << "k + " << b1 << ") mod " << modulus_p << ") mod " << capacity_ << std::endl;
+    if (!suppress_logs) std::cout << "h1 = ((" << a1 << "k + " << b1 << ") mod " << modulus_p << ") mod " << capacity_ << std::endl;
 }
 void RandCuckooHash::printHash2() {
-    std::cout << "h2 = ((" << a2 << "k + " << b2 << ") mod " << modulus_p << ") mod " << capacity_ << std::endl;
+    if (!suppress_logs) std::cout << "h2 = ((" << a2 << "k + " << b2 << ") mod " << modulus_p << ") mod " << capacity_ << std::endl;
 }
 
 void RandCuckooHash::genNewHashes() {

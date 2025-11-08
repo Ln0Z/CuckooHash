@@ -111,10 +111,10 @@ TEST(universal_hash_family, test_single_hash_collision_rate) {
     int hash1_collisions = 0;
     int hash2_collisions = 0;
 
-    int num_of_trials = 1000000;
+    int num_of_runs = 1000000;
 
     // count number of collisions for a million different key pairs for each hash
-    for (int i = 0; i < num_of_trials; i++) {
+    for (int i = 0; i < num_of_runs; i++) {
         int key1 = int32_range(gen);
         int key2 = int32_range(gen);
         if (table.hash_1(key1) == table.hash_1(key2)) hash1_collisions++;
@@ -123,15 +123,15 @@ TEST(universal_hash_family, test_single_hash_collision_rate) {
 
     // expect average collision rate to be about 1 / m
     float expected = 1 / (float) table.capacity();
-    float hash_1_collision_rate = (float) hash1_collisions / (float) num_of_trials;
-    float hash_2_collision_rate = (float) hash2_collisions / (float) num_of_trials;
+    float hash_1_collision_rate = (float) hash1_collisions / (float) num_of_runs;
+    float hash_2_collision_rate = (float) hash2_collisions / (float) num_of_runs;
 
-    const double standard_error = std::sqrt(expected * (1 - expected) / (float) num_of_trials);
+    const double standard_error = std::sqrt(expected * (1 - expected) / (float) num_of_runs);
     const double acceptable_range = standard_error * 3;
     // ^ uses z-score of 3, so this test should have a 99.7% chance of passing
 
-    std::cout << "Expected collision rate: " << expected << std::endl;
-    std::cout << "h1 collision rate: " << hash_1_collision_rate << ", h2 collision rate: " << hash_2_collision_rate;
+    std::cout << "\n\nRandom hash collision rate test:\n\nExpected collision rate: " << expected << std::endl;
+    std::cout << "h1 collision rate: " << hash_1_collision_rate << ", h2 collision rate: " << hash_2_collision_rate << std::endl;
 
     // expect collision rate to be = 1/m on average, account for probability
     EXPECT_NEAR(expected, hash_1_collision_rate, acceptable_range);
@@ -154,32 +154,37 @@ TEST(universal_hash_family, test_family_universality) {
     // for each pair, count number of collisions after a
     // million different hashes from the universal set
 
-    std::cout << "Running hash family universality test..." << std::endl;
-    auto start = std::chrono::high_resolution_clock::now();
+    // init new table, hashes are randomly chosen
+    // make table capacity 1109
+    RandCuckooHash table(6);
     for (int i = 0; i < num_of_runs; i++) {
-        // init new table, new hashes are randomly chosen
-        // make table capacity 1109
-        RandCuckooHash table(6, gen);
 
         if (table.hash_1(x1) == table.hash_1(y1)) pair1_collisions++;
         if (table.hash_1(x2) == table.hash_1(y2)) pair2_collisions++;
         if (table.hash_1(x3) == table.hash_1(y3)) pair3_collisions++;
-//        table.reh
-        // generator is copied not referenced by the constructor, so manually
-        // advance generator by 4 since it is used 4 times in constructor
-        gen.discard(4);
 
-        // cout progress every 5%
-        if (i % (num_of_runs / 20) == 0) std::cout << i / (num_of_runs / 100) << "% completed..." << std::endl;
+        // use helper function to avoid
+        table.genNewHashes();
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = end - start;
-    long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    std::cout << "done in " << milliseconds << "ms \n";
 
-    std::cout << pair1_collisions << std::endl;
-    std::cout << pair2_collisions << std::endl;
-    std::cout << pair3_collisions << std::endl;
+    // just like last test, expect average collision rate to be about 1 / m
+    float expected = 1 / (float) table.capacity();
+    float pair_1_collision_rate = (float) pair1_collisions / (float) num_of_runs;
+    float pair_2_collision_rate = (float) pair2_collisions / (float) num_of_runs;
+    float pair_3_collision_rate = (float) pair3_collisions / (float) num_of_runs;
+
+    const double standard_error = std::sqrt(expected * (1 - expected) / (float) num_of_runs);
+    const double acceptable_range = standard_error * 3;
+
+    std::cout << "\n\nHash family universality test:\n\nExpected collision rate: " << expected << std::endl;
+
+    std::cout << "Pair 1 collision rate: " << pair_1_collision_rate << std::endl;
+    std::cout << "Pair 2 collision rate: " << pair_2_collision_rate << std::endl;
+    std::cout << "Pair 3 collision rate: " << pair_3_collision_rate << std::endl;
+
+    EXPECT_NEAR(expected, pair_1_collision_rate, acceptable_range);
+    EXPECT_NEAR(expected, pair_2_collision_rate, acceptable_range);
+    EXPECT_NEAR(expected, pair_3_collision_rate, acceptable_range);
 }
 
 int main(int argc, char *argv[]) {

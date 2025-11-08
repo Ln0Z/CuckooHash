@@ -15,20 +15,23 @@ public:
         this->printHash2();
     }
 
-    explicit RandCuckooHash(int size_index, std::mt19937 gen = std::mt19937(std::random_device{}())) : CuckooHash(size_index), generator(gen) {
-        // call standard CuckooHash constructor and init random generator
-        // then generate the hashes
+    explicit RandCuckooHash(int size_index, bool suppress_logs = false) : CuckooHash(size_index), generator(std::random_device{}()), suppress_logs(suppress_logs) {
+        // choose starting capacity with ctor argument
         genNewHashes();
 
-//        this->printHash1();
-//        this->printHash2();
+        this->printHash1();
+        this->printHash2();
     }
 
     void printHash1();
     void printHash2();
 
+    // following are only public for testing
     size_t hash_1(int key) override;
     size_t hash_2(int key) override;
+
+    // below will break any hash table, only use for testing
+    void genNewHashes();
 
 protected:
     void rehash(size_t new_size) override;
@@ -45,7 +48,8 @@ private:
 
     std::mt19937 generator;
 
-    void genNewHashes();
+    // hide logs to reduce test output clutter
+    bool suppress_logs;
 
     // c++'s % is really just a remainder operator, use
     // mathematical modulo to ensure universal hash family
