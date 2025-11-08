@@ -21,6 +21,16 @@ namespace{
     }
 }
 
+TEST(basic_func_test, load_factor_calc){
+  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), (float)i/26);
+    table.insert(values[i]);
+  }
+}
+
 TEST(insert_test, insert_10_elements) {
   std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
   CuckooHash table;
@@ -101,8 +111,7 @@ TEST(erase_test, erase_same_key_twice){
 
   ASSERT_EQ(table.contains(15), -1);
   ASSERT_TRUE(table.empty());
-
-  table.erase(15);
+  ASSERT_FALSE(table.erase(15));
 }
 
 TEST(erase_test, insert_and_erase_10_elements) {
@@ -164,7 +173,6 @@ TEST(basic_func_test, is_empty){
   }
 
 // Insert 1 element
-
 TEST(insert_test, insert_single_element){
   CuckooHash table;
   
@@ -261,6 +269,7 @@ TEST(insert_test, inserts_random_values) {
 
     ASSERT_GE(table.capacity(), 100);
 }
+
 
 
 int main(int argc, char *argv[]) {
