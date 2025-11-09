@@ -198,3 +198,30 @@ TEST(universal_hash_family, test_family_universality) {
     EXPECT_NEAR(expected, pair_2_collision_rate, acceptable_range);
     EXPECT_NEAR(expected, pair_3_collision_rate, acceptable_range);
 }
+
+TEST(compare_deterministic_and_universal, adversarial_keys) {
+    // pick a key to base adversarial set on
+    std::mt19937 gen(std::random_device{}());
+    std::uniform_int_distribution<int32_t> int32_range(-2'147'483'647, 2'147'483'647);
+    int32_t key = int32_range(gen);
+
+    // create a deterministic and random cuckoo hash table
+    CuckooHash table(0);
+    RandCuckooHash rand_table(0, 1388210758, true);
+
+    int num_of_runs = 25;
+
+    // insert a sequence
+    for (int i = 0; i < num_of_runs; i++) {
+        // increase key by capacity of one array - adversely
+        // affects deterministic hashes, but not universally hashed ones
+        key += (int)table.capacity() / 2;
+        table.insert(key);
+        rand_table.insert(key);
+    }
+
+    // expect that deterministic table has had to rehash 12 times
+    // while non-deterministic only has had to once to increase capacity
+    EXPECT_EQ(table.times_rehashed(), 12);
+    EXPECT_EQ(rand_table.times_rehashed(), 1);
+}

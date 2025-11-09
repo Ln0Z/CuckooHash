@@ -41,6 +41,7 @@ void CuckooHash::insert(int key){
     if (load_factor() > max_load || counter == max_steps){
         std::cout << "Triggering Rehash" << "\n";
         ++size_index;
+        ++times_rehashed_;
         max_steps = 6 * static_cast<size_t>((std::ceil(log2(sizes[size_index]))));
         if (size_index < sizes.size()) {
             rehash(sizes[size_index]);
@@ -144,6 +145,10 @@ size_t CuckooHash::size() const{
 // Multiply by 2, as capacity_ tracks the capacity per array
 size_t CuckooHash::capacity() const{
     return 2 * capacity_;
+}
+
+int CuckooHash::times_rehashed() const {
+    return times_rehashed_;
 }
 
 float CuckooHash::load_factor() const{

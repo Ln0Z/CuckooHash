@@ -47,6 +47,7 @@ class CuckooHash{
         float load_factor() const;
         size_t size() const;
         size_t capacity() const;
+        int times_rehashed() const;
 
         virtual size_t hash_1(int key);
         virtual size_t hash_2(int key);
@@ -64,6 +65,7 @@ class CuckooHash{
         float max_load;
         std::vector<std::optional<int>> h1, h2;
         friend class CuckooHashTest;
+        int times_rehashed_ = 0;
 };
 
 #endif
