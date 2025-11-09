@@ -48,7 +48,9 @@ class CuckooHash{
         size_t size() const;
         size_t capacity() const;
 
-    protected: 
+        virtual size_t hash_1(int key);
+        virtual size_t hash_2(int key);
+    protected:
         //Capacity sizes for rehash
         const std::vector<size_t> sizes{13ul, 29ul, 59ul, 127ul, 257ul, 541ul,
             1'109ul, 2'357ul, 5'087ul, 10'273ul, 20'753ul, 42'043ul,
@@ -56,10 +58,8 @@ class CuckooHash{
         };
 
         //Helper methods
-        virtual void rehash(size_t new_size);       
-        virtual size_t hash_1(int key);
-        virtual size_t hash_2(int key);
-        
+        virtual void rehash(size_t new_size);
+
         size_t size_index, size_, capacity_, max_steps;
         float max_load;
         std::vector<std::optional<int>> h1, h2;
