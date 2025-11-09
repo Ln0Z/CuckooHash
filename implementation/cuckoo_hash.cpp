@@ -39,13 +39,14 @@ void CuckooHash::insert(int key){
         ++counter;
     }
     if (load_factor() > max_load || counter == max_steps){
-        //std::cout << "Triggering Rehash \n";
+        std::cout << "Triggering Rehash" << "\n";
         ++size_index;
+        ++times_rehashed_;
         max_steps = 6 * static_cast<size_t>((std::ceil(log2(sizes[size_index]))));
         if (size_index < sizes.size()) {
             rehash(sizes[size_index]);
         } else{
-            throw std::runtime_error("Exceeded maximum size of hash table" + sizes[sizes.size() - 1]);
+            throw std::runtime_error(&"Exceeded maximum size of hash table" [ sizes[sizes.size() - 1]]);
         }
         //If max steps case is triggered, the last key that was evicted does not get inserted when it toggles a rehash
         //So attempt to reinsert the key again after rehash
@@ -72,7 +73,7 @@ int CuckooHash::contains(int key){
 std::optional<int> CuckooHash::find(int key){
     size_t key_1 = hash_1(key);
     size_t key_2 = hash_2(key);
-    
+
     //Check if value is in vec h1 and resets to default std::optional<int>
     if (h1[key_1] && *h1[key_1] == key){
         return h1[key_1];
@@ -133,7 +134,7 @@ void CuckooHash::clear(){
     size_ = 0;
 }
 
-bool CuckooHash::empty(){
+bool CuckooHash::empty() const{
     return size_ == 0;
 }
 
@@ -141,9 +142,13 @@ size_t CuckooHash::size() const{
     return size_;
 }
 
-//Multiply by 2 as capacity_ tracks the capacity per bucket
+// Multiply by 2, as capacity_ tracks the capacity per array
 size_t CuckooHash::capacity() const{
     return 2 * capacity_;
+}
+
+int CuckooHash::times_rehashed() const {
+    return times_rehashed_;
 }
 
 float CuckooHash::load_factor() const{
