@@ -25,16 +25,6 @@ namespace{
 
 // <-----------------------------------------------------------------HASH TESTS-------------------------------------------------------------->
 
-TEST(hash_test, load_factor_calc_after_multiple_rehash){
-  std::unordered_set<int> values = random_set(200, 0, 500);
-  CuckooHash table;
-
-  for (size_t i = 0; i < values.size(); ++i) {
-    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
-    table.insert(i);
-  }
-}
-
 TEST(hash_test, hash_distribution) {
     CuckooHash table;
 
@@ -377,6 +367,16 @@ TEST(basic_func_test, load_factor_calc_after_rehash){
   for (size_t i = 0; i < values.size(); ++i) {
     ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
     table.insert(values[i]);
+  }
+}
+
+TEST(basic_func_test, load_factor_calc_after_multiple_rehash){
+  std::unordered_set<int> values = random_set(200, 0, 500);
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
+    table.insert(i);
   }
 }
 
