@@ -82,7 +82,7 @@ TEST(universal_hash_family, test_single_hash_collision_rate) {
     RandCuckooHash table(6, true);
 
     // arbitrary seed chosen for reproducibility. 99.7% of seeds should pass the test
-    std::mt19937 gen(1388230758); // NOLINT(cert-msc51-cpp)
+    std::mt19937 gen(1388230758);// NOLINT(cert-msc51-cpp)
     std::uniform_int_distribution<int32_t> int32_range(-2'147'483'647, 2'147'483'647);
 
     int hash1_collisions = 0;
@@ -116,42 +116,6 @@ TEST(universal_hash_family, test_single_hash_collision_rate) {
     EXPECT_NEAR(expected, hash_1_collision_rate, acceptable_range);
     EXPECT_NEAR(expected, hash_2_collision_rate, acceptable_range);
 }
-
-TEST(compare_deterministic_and_universal, random_keys) {
-    // create a deterministic and random cuckoo hash table
-    CuckooHash table(6);
-    RandCuckooHash rand_table(6, 1388210758, true);
-
-    // arbitrary seed chosen for reproducibility. 99.7% of seeds should pass the test
-    std::mt19937 gen(1388230758); // NOLINT(cert-msc51-cpp)
-    std::uniform_int_distribution<int32_t> int32_range(-2'147'483'647, 2'147'483'647);
-
-    int deterministic_hash_collisions = 0;
-    int random_hash_collisions = 0;
-
-    int num_of_runs = 1000000;
-
-    // count number of collisions for a million different key pairs for each hash
-    for (int i = 0; i < num_of_runs; i++) {
-        int key1 = int32_range(gen);
-        int key2 = int32_range(gen);
-        if (table.hash_1(key1) == table.hash_1(key2)) deterministic_hash_collisions++;
-        if (rand_table.hash_1(key1) == rand_table.hash_1(key2)) random_hash_collisions++;
-    }
-
-    float deterministic_collision_rate = (float) deterministic_hash_collisions / (float) num_of_runs;
-    float random_collision_rate = (float) random_hash_collisions / (float) num_of_runs;
-
-    const double standard_error = std::sqrt(deterministic_collision_rate * (1 - deterministic_collision_rate) / (float) num_of_runs);
-    const double acceptable_range = standard_error * 3;
-
-    std::cout << "\n\nCompare deterministic and universal hash collision rates:\n" << std::endl;
-    std::cout << "Deterministic collision rate: " << deterministic_collision_rate << ", Universal collision rate: " << random_collision_rate << std::endl;
-
-    // expect collision rate to be effectively the same for both implementations, explanation in report
-    EXPECT_NEAR(deterministic_collision_rate, random_collision_rate, acceptable_range);
-}
-
 TEST(universal_hash_family, test_family_universality) {
     // pick a few arbitrary fixed pairs to test across many hashes
     int32_t x1 = -685415863, y1 = 815978995;
@@ -199,6 +163,43 @@ TEST(universal_hash_family, test_family_universality) {
     EXPECT_NEAR(expected, pair_3_collision_rate, acceptable_range);
 }
 
+TEST(compare_deterministic_and_universal, random_keys) {
+    // create a deterministic and random cuckoo hash table
+    CuckooHash table(6);
+    RandCuckooHash rand_table(6, 1388210758, true);
+
+    // arbitrary seed chosen for reproducibility. 99.7% of seeds should pass the test
+    std::mt19937 gen(1388230758);// NOLINT(cert-msc51-cpp)
+    std::uniform_int_distribution<int32_t> int32_range(-2'147'483'647, 2'147'483'647);
+
+    int deterministic_hash_collisions = 0;
+    int random_hash_collisions = 0;
+
+    int num_of_runs = 1000000;
+
+    // count number of collisions for a million different key pairs for each hash
+    for (int i = 0; i < num_of_runs; i++) {
+        int key1 = int32_range(gen);
+        int key2 = int32_range(gen);
+        if (table.hash_1(key1) == table.hash_1(key2)) deterministic_hash_collisions++;
+        if (rand_table.hash_1(key1) == rand_table.hash_1(key2)) random_hash_collisions++;
+    }
+
+    float deterministic_collision_rate = (float) deterministic_hash_collisions / (float) num_of_runs;
+    float random_collision_rate = (float) random_hash_collisions / (float) num_of_runs;
+
+    const double standard_error = std::sqrt(deterministic_collision_rate * (1 - deterministic_collision_rate) / (float) num_of_runs);
+    const double acceptable_range = standard_error * 3;
+
+    std::cout << "\n\nCompare deterministic and universal hash collision rates:\n"
+              << std::endl;
+    std::cout << "Deterministic collision rate: " << deterministic_collision_rate << ", Universal collision rate: " << random_collision_rate << std::endl;
+
+    // expect collision rate to be effectively the same for both implementations, explanation in report
+    EXPECT_NEAR(deterministic_collision_rate, random_collision_rate, acceptable_range);
+}
+
+
 TEST(compare_deterministic_and_universal, adversarial_keys) {
     // pick a key to base adversarial set on
     std::mt19937 gen(std::random_device{}());
@@ -215,7 +216,7 @@ TEST(compare_deterministic_and_universal, adversarial_keys) {
     for (int i = 0; i < num_of_runs; i++) {
         // increase key by capacity of one array - adversely
         // affects deterministic hashes, but not universally hashed ones
-        key += (int)table.capacity() / 2;
+        key += (int) table.capacity() / 2;
         table.insert(key);
         rand_table.insert(key);
     }
