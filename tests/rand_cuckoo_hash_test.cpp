@@ -81,7 +81,8 @@ TEST(universal_hash_family, test_single_hash_collision_rate) {
     // make table with capacity 1109, random hashes chosen
     RandCuckooHash table(6, true);
 
-    std::mt19937 gen(std::random_device{}());
+    // arbitrary seed chosen for reproducibility. 99.7% of seeds should pass the test
+    std::mt19937 gen(1388230758); // NOLINT(cert-msc51-cpp)
     std::uniform_int_distribution<int32_t> int32_range(-2'147'483'647, 2'147'483'647);
 
     int hash1_collisions = 0;
@@ -126,15 +127,13 @@ TEST(universal_hash_family, test_family_universality) {
     int pair2_collisions = 0;
     int pair3_collisions = 0;
 
-    std::mt19937 gen(std::random_device{}());
-
     int num_of_runs = 1000000;
     // for each pair, count number of collisions after a
     // million different hashes from the universal set
 
     // init new table, hashes are randomly chosen
-    // make table capacity 1109
-    RandCuckooHash table(6, true);
+    // make table capacity 1109, use arbitrary seed
+    RandCuckooHash table(6, 1388230758, true);
     for (int i = 0; i < num_of_runs; i++) {
 
         if (table.hash_1(x1) == table.hash_1(y1)) pair1_collisions++;

@@ -24,36 +24,6 @@ class CuckooHash{
         explicit CuckooHash(int size_index) : size_index(size_index), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_) {}
 
 
-        class iterator{
-            public:
-                iterator(std::vector<std::optional<int>>& h1, std::vector<std::optional<int>>& h2) : h1_ptr(h1.begin()), h2_ptr(h2.begin()) {}
-
-                std::optional<int> operator*() const {
-                }
-
-                std::optional<int> operator->() const {
-                }
-
-                iterator& operator++(){
-                }
-
-                iterator operator++(int){
-                }
-
-                bool operator==(const iterator& other) const{
-                }
-
-                bool operator!=(const iterator& other) const{
-                }
-
-            private:
-                std::vector<std::optional<int>>::iterator h1_ptr;
-                std::vector<std::optional<int>>::iterator h2_ptr;
-
-
-        };
-
-
         //Copy constructor and assignment operator
         CuckooHash(const CuckooHash&) = default;
         CuckooHash& operator=(const CuckooHash&) = default;

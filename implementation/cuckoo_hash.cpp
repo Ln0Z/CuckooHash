@@ -141,7 +141,7 @@ size_t CuckooHash::size() const{
     return size_;
 }
 
-//Multiply by 2 as capacity_ tracks the capacity per bucket
+// Multiply by 2, as capacity_ tracks the capacity per array
 size_t CuckooHash::capacity() const{
     return 2 * capacity_;
 }
