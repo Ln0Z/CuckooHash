@@ -98,7 +98,9 @@ TEST(universal_hash_family, test_single_hash_collision_rate) {
     }
 
     // expect average collision rate to be about 1 / m
-    float expected = 1 / (float) table.capacity();
+    // divide by two because table.capacity is for both arrays
+    // but we just want collision rate for one
+    float expected = 1 / ((float) table.capacity() / 2);
     float hash_1_collision_rate = (float) hash1_collisions / (float) num_of_runs;
     float hash_2_collision_rate = (float) hash2_collisions / (float) num_of_runs;
 
@@ -144,7 +146,7 @@ TEST(universal_hash_family, test_family_universality) {
     }
 
     // just like last test, expect average collision rate to be about 1 / m
-    float expected = 1 / (float) table.capacity();
+    float expected = 1 / ((float) table.capacity() / 2);
     float pair_1_collision_rate = (float) pair1_collisions / (float) num_of_runs;
     float pair_2_collision_rate = (float) pair2_collisions / (float) num_of_runs;
     float pair_3_collision_rate = (float) pair3_collisions / (float) num_of_runs;

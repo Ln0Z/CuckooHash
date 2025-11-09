@@ -49,7 +49,7 @@ private:
     std::mt19937 generator;
 
     // hide logs to reduce test output clutter
-    bool suppress_logs;
+    bool suppress_logs{};
 
     // c++'s % is really just a remainder operator, use
     // mathematical modulo to ensure universal hash family
