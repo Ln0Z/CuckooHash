@@ -5,24 +5,32 @@
 #include <cmath>
 
 class CuckooHash{
-    public: 
-        CuckooHash() : size_index(0), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(static_cast<size_t>(6 * std::ceil(log2(sizes[size_index])))), h1(capacity_), h2(capacity_) {}
+    public:
+        CuckooHash() : size_index(0), size_(0), capacity_(sizes[size_index]), max_load(0.5), h1(capacity_), h2(capacity_) {
+            double delta = 0.1;
+            max_steps = static_cast<size_t>(
+                std::ceil(6.0 * log_base(static_cast<double>(capacity_), 1.0 + delta/2.0))
+            );
+        }
 
         CuckooHash(const std::initializer_list<int>& vals)
             : size_index(0),
             size_(0),
             capacity_(sizes[size_index]),
             max_load(0.5),
-            max_steps(static_cast<size_t>(6 * std::ceil(log2(sizes[size_index])))),
             h1(capacity_),
             h2(capacity_) {
+
+                double delta = 0.1;
+                max_steps = static_cast<size_t>(
+                    std::ceil(6.0 * log_base(static_cast<double>(capacity_), 1.0 + delta/2.0))
+                );
                 for (int x : vals){
                     insert(x);
                 }
         }
 
         explicit CuckooHash(int size_index) : size_index(size_index), size_(0), capacity_(sizes[size_index]), max_load(0.5), max_steps(10), h1(capacity_), h2(capacity_) {}
-
 
         //Copy constructor and assignment operator
         CuckooHash(const CuckooHash&) = default;
@@ -57,6 +65,10 @@ class CuckooHash{
             1'109ul, 2'357ul, 5'087ul, 10'273ul, 20'753ul, 42'043ul,
             85'229ul, 172'933ul, 351'061ul, 712'697ul, 1'447'153ul, 2'938'679ul, 10'000'019ul
         };
+
+        double log_base(double x, double base) {
+            return std::log(x) / std::log(base);
+        }
 
         //Helper methods
         virtual void rehash(size_t new_size);

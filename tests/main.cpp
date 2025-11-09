@@ -1,11 +1,12 @@
-#include "cuckoo_hash.hpp"
 #include <gtest/gtest.h>
+#include <random>
+#include "cuckoo_hash.hpp"
 #include <unordered_set>
 #include <limits.h>
-#include <random>
+#include <iostream>
 #include <algorithm>
 
-namespace {
+namespace{
     std::unordered_set<int> random_set(int total_numbers, int low_rage, int high_range){
         std::random_device rand;
         std::uniform_int_distribution<int> seed_dist(1, 50);
@@ -14,45 +15,15 @@ namespace {
         std::uniform_int_distribution<int> dist(low_rage, high_range);
         std::unordered_set<int> random_set;
 
-        for (size_t i = 0; i < total_numbers; ++i) {
+        for (size_t i = 0; i < total_numbers; ++i){
             random_set.insert(dist(rng));
         }
         return random_set;
     }
-}// namespace
+}
 
 
 // <-----------------------------------------------------------------HASH TESTS-------------------------------------------------------------->
-
-TEST(hash_test, load_factor_calc){
-  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
-  CuckooHash table;
-
-  for (size_t i = 0; i < values.size(); ++i) {
-    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(26));
-    table.insert(values[i]);
-  }
-}
-
-TEST(hash_test, load_factor_calc_after_rehash){
-  std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
-  CuckooHash table;
-
-  for (size_t i = 0; i < values.size(); ++i) {
-    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
-    table.insert(values[i]);
-  }
-}
-
-TEST(hash_test, load_factor_calc_after_multiple_rehash){
-  std::unordered_set<int> values = random_set(200, 0, 500);
-  CuckooHash table;
-
-  for (size_t i = 0; i < values.size(); ++i) {
-    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
-    table.insert(i);
-  }
-}
 
 TEST(hash_test, hash_distribution) {
     CuckooHash table;
@@ -61,7 +32,7 @@ TEST(hash_test, hash_distribution) {
     for (int i = 0; i < 1000; ++i){
       keys.push_back(i);
     }
-
+    
     std::vector<int> counts_h1(table.capacity() / 2, 0);
     std::vector<int> counts_h2(table.capacity() / 2, 0);
 
@@ -116,80 +87,80 @@ TEST(insert_test, insert_negative_element){
 }
 
 TEST(insert_test, insert_10_elements) {
-    std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
-    CuckooHash table;
+  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
+  CuckooHash table;
   std::unordered_set<int> standard;
 
-    for (size_t i = 0; i < values.size(); ++i) {
-        table.insert(values[i]);
+  for (size_t i = 0; i < values.size(); ++i) {
+    table.insert(values[i]);
     standard.insert(values[i]);
-    }
+  }
 
-  std::vector<std::optional<int>> h1_results{23, 12, 53, 3, std::nullopt, std::nullopt, std::nullopt, 11, 39, 2,
+  std::vector<std::optional<int>> h1_results{23, 12, 53, 3, std::nullopt, std::nullopt, std::nullopt, 11, 39, 2, 
                                              std::nullopt, 45, 34};
 
-    std::vector<std::optional<int>> h2_results{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+  std::vector<std::optional<int>> h2_results{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 
                                              1, std::nullopt, std::nullopt};
 
 
-    ASSERT_EQ(table.h1_bucket().size(), 13);
-    ASSERT_EQ(table.h2_bucket().size(), 13);
+  ASSERT_EQ(table.h1_bucket().size(), 13);
+  ASSERT_EQ(table.h2_bucket().size(), 13);
 
-    for (size_t i = 0; i < h1_results.size(); ++i) {
-        ASSERT_EQ(table.h1_bucket()[i], h1_results[i]);
-        ASSERT_EQ(table.h2_bucket()[i], h2_results[i]);
-    }
-
+  for (size_t i = 0; i < h1_results.size(); ++i){
+      ASSERT_EQ(table.h1_bucket()[i], h1_results[i]);
+      ASSERT_EQ(table.h2_bucket()[i], h2_results[i]);
+  }
+  
   for (auto x : standard){
     ASSERT_EQ(*table.find(x), x);
   }
 }
 
 TEST(insert_test, insert_cause_rehash) {
-    std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
-    CuckooHash table;
+  std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
+  CuckooHash table;
 
   ASSERT_LT(table.capacity(), 58);
 
-    for (size_t i = 0; i < values.size(); ++i) {
-        table.insert(values[i]);
-        if (i == 12) {
-            //Next insert will trigger rehash
-            ASSERT_EQ(table.load_factor(), 0.5f);
-        }
+  for (size_t i = 0; i < values.size(); ++i) {
+    table.insert(values[i]);
+    if(i == 12){
+      //Next insert will trigger rehash
+      ASSERT_EQ(table.load_factor(), 0.5f);
     }
+  }
 
   ASSERT_EQ(table.capacity(), 58);
 
-    std::vector<std::optional<int>> h1_results(29, std::nullopt);
-    std::vector<std::optional<int>> h2_results(29, std::nullopt);
+  std::vector<std::optional<int>> h1_results(29, std::nullopt);
+  std::vector<std::optional<int>> h2_results(29, std::nullopt);
 
   h1_results[3]  = 43;
-    h1_results[5] = 6;
-    h1_results[6] = 2;
+  h1_results[5]  = 6;
+  h1_results[6]  = 2;
   h1_results[8]  = 23;
-    h1_results[11] = 11;
-    h1_results[13] = 3;
+  h1_results[11] = 11;
+  h1_results[13] = 3;
   h1_results[15] = 53;
   h1_results[17] = 45;
   h1_results[18] = 12;
-    h1_results[19] = 8;
+  h1_results[19] = 8;
   h1_results[26]  = 38;
   h1_results[27]  = 34;
   h1_results[28] = 1;
   h2_results[1] = 5;
 
 
-    ASSERT_EQ(table.h1_bucket().size(), 29);
-    ASSERT_EQ(table.h2_bucket().size(), 29);
+  ASSERT_EQ(table.h1_bucket().size(), 29);
+  ASSERT_EQ(table.h2_bucket().size(), 29);
   ASSERT_EQ(table.capacity(), 58);
 
 
-    for (size_t i = 0; i < h1_results.size(); ++i) {
-        ASSERT_EQ(table.h1_bucket()[i], h1_results[i]);
-        ASSERT_EQ(table.h2_bucket()[i], h2_results[i]);
-    }
+  for (size_t i = 0; i < h1_results.size(); ++i) {
+    ASSERT_EQ(table.h1_bucket()[i], h1_results[i]);
+    ASSERT_EQ(table.h2_bucket()[i], h2_results[i]);
+  }
 }
 
 TEST(insert_test, exceeding_max_steps_rehashes){
@@ -222,7 +193,7 @@ TEST(insert_test, no_duplicate_elements){
   ASSERT_EQ(table.contains(12), 1);
   ASSERT_EQ(table.size(), 1);
   table.insert(12);
-
+  
   ASSERT_EQ(table.contains(12), 1);
   ASSERT_EQ(table.size(), 1);
 }
@@ -238,7 +209,7 @@ TEST(insert_test, insert_2_clashing_elements){
 
   ASSERT_EQ(table.contains(1), 2);
   ASSERT_EQ(table.contains(14), 1);
-
+  
   size_t idx_h1_x = table.get_hash_1(1);
   size_t idx_h1_y = table.get_hash_1(14);
 
@@ -264,7 +235,7 @@ TEST(insert_test, inserts_random_values_stress) {
         table.insert(x);
         standard.insert(x);
     }
-
+   
     for (int x : values) {
         ASSERT_TRUE(table.contains(x) == 1 || table.contains(x) == 2);
         ASSERT_EQ(*standard.find(x), *table.find(x));
@@ -282,7 +253,7 @@ TEST(erase_test, erase_same_key_twice){
   standard.insert(15);
 
   ASSERT_EQ(table.size(), standard.size());
-
+  
   table.erase(15);
   standard.erase(15);
 
@@ -292,34 +263,34 @@ TEST(erase_test, erase_same_key_twice){
 }
 
 TEST(erase_test, insert_and_erase_10_elements) {
-    std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
-    CuckooHash table;
+  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
+  CuckooHash table;
   std::unordered_set<int> standard;
 
-    for (size_t i = 0; i < values.size(); ++i) {
-        table.insert(values[i]);
+  for (size_t i = 0; i < values.size(); ++i) {
+    table.insert(values[i]);
     standard.insert(values[i]);
-    }
-
-  std::vector<std::optional<int>> h1_results{23, 12, 53, 3, std::nullopt, std::nullopt, std::nullopt, 11, 39, 2,
+  }
+  
+  std::vector<std::optional<int>> h1_results{23, 12, 53, 3, std::nullopt, std::nullopt, std::nullopt, 11, 39, 2, 
                                              std::nullopt, 45, 34};
 
-    std::vector<std::optional<int>> h2_results{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
-                                             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+  std::vector<std::optional<int>> h2_results{std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt,
+                                             std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, 
                                              1, std::nullopt, std::nullopt};
 
-    ASSERT_EQ(table.h1_bucket().size(), 13);
-    ASSERT_EQ(table.h2_bucket().size(), 13);
+  ASSERT_EQ(table.h1_bucket().size(), 13);
+  ASSERT_EQ(table.h2_bucket().size(), 13);
 
 
-    for (size_t i = 0; i < h1_results.size(); ++i) {
-        ASSERT_EQ(table.h1_bucket()[i], h1_results[i]);
-        ASSERT_EQ(table.h2_bucket()[i], h2_results[i]);
-    }
+  for (size_t i = 0; i < h1_results.size(); ++i) {
+    ASSERT_EQ(table.h1_bucket()[i], h1_results[i]);
+    ASSERT_EQ(table.h2_bucket()[i], h2_results[i]);
+  }
 
   for (int x : values){
     ASSERT_EQ(*table.find(x), *standard.find(x));
-    }
+  }
 
   ASSERT_EQ(table.size(), standard.size());
 
@@ -330,10 +301,10 @@ TEST(erase_test, insert_and_erase_10_elements) {
 
   ASSERT_EQ(table.size(), standard.size());
 
-    for (size_t i = 0; i < h1_results.size(); ++i) {
-        ASSERT_EQ(table.h1_bucket()[i], std::nullopt);
-        ASSERT_EQ(table.h2_bucket()[i], std::nullopt);
-    }
+  for (size_t i = 0; i < h1_results.size(); ++i) {
+    ASSERT_EQ(table.h1_bucket()[i], std::nullopt);
+    ASSERT_EQ(table.h2_bucket()[i], std::nullopt);
+  }
 }
 
 TEST(erase_test, size_decrement_works){
@@ -342,11 +313,11 @@ TEST(erase_test, size_decrement_works){
 
   for (size_t i = 0; i < 100; ++i){
     table.insert(i);
-    standard.insert(i);
+    standard.insert(i);  
   }
 
   ASSERT_EQ(table.size(), standard.size());
-
+  
   for (size_t i = 0; i < 100; ++i){
     table.erase(i);
     standard.erase(i);
@@ -363,7 +334,7 @@ TEST(erase_test, insert_and_erase_random_values_stress) {
         table.insert(x);
         standard.insert(x);
     }
-
+   
     for (int x : values) {
         ASSERT_TRUE(table.contains(x) == 1 || table.contains(x) == 2);
         ASSERT_EQ(*standard.find(x), *table.find(x));
@@ -379,11 +350,41 @@ TEST(erase_test, insert_and_erase_random_values_stress) {
 
 // <-----------------------------------------------------------------BASIC FUNCTIONALITY TESTS-------------------------------------------------------------->
 
-TEST(basic_func_test, is_empty) {
-    CuckooHash table;
+TEST(basic_func_test, load_factor_calc){
+  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(26));
+    table.insert(values[i]);
+  }
+}
+
+TEST(basic_func_test, load_factor_calc_after_rehash){
+  std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
+    table.insert(values[i]);
+  }
+}
+
+TEST(basic_func_test, load_factor_calc_after_multiple_rehash){
+  std::unordered_set<int> values = random_set(200, 0, 500);
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
+    table.insert(i);
+  }
+}
+
+TEST(basic_func_test, is_empty){
+  CuckooHash table;
   std::unordered_set<int> standard;
 
-    ASSERT_TRUE(table.empty());
+  ASSERT_TRUE(table.empty());
   ASSERT_EQ(table.size(), standard.size());
   ASSERT_EQ(table.capacity(), 26);
 }
@@ -401,8 +402,8 @@ TEST(basic_func_test, handle_0_insertion){
 }
 
 // Confirm hashing stays within bucket boundaries i.e < capacity
-TEST(basic_func_test, hash_below_capacity) {
-    CuckooHash table;
+TEST(basic_func_test, hash_below_capacity){
+  CuckooHash table;
 
   int large_number = INT_MAX / 2;
 
@@ -411,23 +412,22 @@ TEST(basic_func_test, hash_below_capacity) {
 
   ASSERT_TRUE(idx_h1 < table.capacity() / 2);
   ASSERT_TRUE(idx_h2 < table.capacity() / 2);
-    ASSERT_NE(idx_h1, idx_h2);
+  ASSERT_NE(idx_h1, idx_h2);
 }
 
 TEST(insert_test, size_increment_works){
-    CuckooHash table;
+  CuckooHash table;
   std::unordered_set<int> standard;
 
   for (size_t i = 0; i < 100; ++i){
     table.insert(i);
-    standard.insert(i);
-    }
+    standard.insert(i);  
+  }
 
   ASSERT_EQ(table.size(), standard.size());
-    }
+}
 
 int main(int argc, char *argv[]) {
-    ::testing::InitGoogleTest(&argc, argv);
-    //  ::testing::GTEST_FLAG(filter) = "insert_test.exceeding_max_steps_rehashes";
-    return RUN_ALL_TESTS();
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
