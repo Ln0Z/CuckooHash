@@ -16,7 +16,7 @@ public:
     }
 
     explicit RandCuckooHash(int size_index, bool suppress_logs = false) : CuckooHash(size_index), generator(std::random_device{}()), suppress_logs(suppress_logs) {
-        // choose starting capacity with ctor argument, allow user to set seed and/or suppress logs
+        // choose starting capacity with ctor argument, allow user to suppress logs
         genNewHashes();
 
         this->printHash1();

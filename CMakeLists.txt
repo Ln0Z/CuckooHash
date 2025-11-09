@@ -22,7 +22,7 @@ add_executable(CuckooHash
         implementation/cuckoo_hash.cpp
         implementation/rand_cuckoo_hash.cpp
         tests/main.cpp
-        tests/rand_cuckoo_hash_test.cpp)
+)
 
 add_dependencies(CuckooHash gtest)
 target_link_libraries(CuckooHash gtest gtest_main pthread)

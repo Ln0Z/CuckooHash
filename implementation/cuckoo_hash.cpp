@@ -46,7 +46,7 @@ void CuckooHash::insert(int key){
         if (size_index < sizes.size()) {
             rehash(sizes[size_index]);
         } else{
-            throw std::runtime_error("Exceeded maximum size of hash table" + sizes[sizes.size() - 1]);
+            throw std::runtime_error(&"Exceeded maximum size of hash table" [ sizes[sizes.size() - 1]]);
         }
         //If max steps case is triggered, the last key that was evicted does not get inserted when it toggles a rehash
         //So attempt to reinsert the key again after rehash
@@ -134,7 +134,7 @@ void CuckooHash::clear(){
     size_ = 0;
 }
 
-bool CuckooHash::empty(){
+bool CuckooHash::empty() const{
     return size_ == 0;
 }
 

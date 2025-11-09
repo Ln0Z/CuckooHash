@@ -34,7 +34,7 @@ class CuckooHash{
 
         //Copy constructor and assignment operator
         CuckooHash(const CuckooHash&) = default;
-        CuckooHash& operator=(const CuckooHash&) = default;
+        CuckooHash& operator=(const CuckooHash&) = delete;
 
         //Destructor
         ~CuckooHash() = default;
@@ -45,7 +45,7 @@ class CuckooHash{
         std::optional<int> find(int key);
         bool erase(int key);
         void clear();
-        bool empty();
+        bool empty() const;
 
         //Getter methods for tests
         const std::vector<std::optional<int>>& h1_bucket() const;
@@ -66,7 +66,7 @@ class CuckooHash{
             85'229ul, 172'933ul, 351'061ul, 712'697ul, 1'447'153ul, 2'938'679ul, 10'000'019ul
         };
 
-        double log_base(double x, double base) {
+        static double log_base(double x, double base) {
             return std::log(x) / std::log(base);
         }
 
