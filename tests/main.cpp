@@ -25,26 +25,6 @@ namespace{
 
 // <-----------------------------------------------------------------HASH TESTS-------------------------------------------------------------->
 
-TEST(hash_test, load_factor_calc){
-  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
-  CuckooHash table;
-
-  for (size_t i = 0; i < values.size(); ++i) {
-    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(26));
-    table.insert(values[i]);
-  }
-}
-
-TEST(hash_test, load_factor_calc_after_rehash){
-  std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
-  CuckooHash table;
-
-  for (size_t i = 0; i < values.size(); ++i) {
-    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
-    table.insert(values[i]);
-  }
-}
-
 TEST(hash_test, load_factor_calc_after_multiple_rehash){
   std::unordered_set<int> values = random_set(200, 0, 500);
   CuckooHash table;
@@ -380,6 +360,26 @@ TEST(erase_test, insert_and_erase_random_values_stress) {
 
 // <-----------------------------------------------------------------BASIC FUNCTIONALITY TESTS-------------------------------------------------------------->
 
+TEST(basic_func_test, load_factor_calc){
+  std::vector<int> values{1, 34, 3, 23, 12, 39, 53, 45, 2, 11};
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(26));
+    table.insert(values[i]);
+  }
+}
+
+TEST(basic_func_test, load_factor_calc_after_rehash){
+  std::vector<int> values{1, 34, 3, 23, 12, 38, 53, 45, 2, 11, 8, 5, 6, 43};
+  CuckooHash table;
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    ASSERT_EQ(table.load_factor(), static_cast<float>(i) / static_cast<float>(table.capacity()));
+    table.insert(values[i]);
+  }
+}
+
 TEST(basic_func_test, is_empty){
   CuckooHash table;
   std::unordered_set<int> standard;
@@ -429,6 +429,5 @@ TEST(insert_test, size_increment_works){
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  //::testing::GTEST_FLAG(filter) = "insert_test.exceeding_max_steps_rehashes";
   return RUN_ALL_TESTS();
 }
