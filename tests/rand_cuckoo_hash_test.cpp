@@ -133,7 +133,7 @@ TEST(universal_hash_family, test_family_universality) {
 
     // init new table, hashes are randomly chosen
     // make table capacity 1109, use arbitrary seed
-    RandCuckooHash table(6, 1388230758, true);
+    RandCuckooHash table(6, 1388210758, true);
     for (int i = 0; i < num_of_runs; i++) {
 
         if (table.hash_1(x1) == table.hash_1(y1)) pair1_collisions++;
