@@ -39,7 +39,6 @@ void CuckooHash::insert(int key){
         ++counter;
     }
     if (load_factor() > max_load || counter == max_steps){
-        std::cout << "Triggering Rehash" << "\n";
         ++size_index;
         ++times_rehashed_;
         max_steps = 6 * static_cast<size_t>((std::ceil(log2(sizes[size_index]))));
